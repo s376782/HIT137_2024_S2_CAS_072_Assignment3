@@ -220,9 +220,22 @@ class GUI(tk.Frame):
         self.main_frame.pack(fill="both", expand="true")
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(0, weight=1)
+        
+class baseobject(object):
+    def __init__(self, name):
+        self._name = name
+    def get_name(self):
+        return self._name
 
-
+class Product(baseobject):
+    # __init__ is known as the constructor
+    def __init__(self, name, type, saleprice):
+        super().__init__(name)
+        self.type = type
+        self.saleprice = saleprice
+        
 class Productlist(GUI):  # inherits from the GUI class
+    
     def __init__(self, parent, controller):
         GUI.__init__(self, parent)
         # Define the path to the Excel file as an instance variable
@@ -299,11 +312,12 @@ class Productlist(GUI):  # inherits from the GUI class
 
             # Function to save the new product to the Excel file
             def save_product():
+                product = Product(name_entry.get(), type_entry.get(), price_entry.get())
                 # Get the data entered by the user
                 new_product = [
-                    name_entry.get(),  # Get the product name
-                    type_entry.get(),  # Get the product type
-                    price_entry.get()  # Get the sale price
+                    product.get_name(),  # Get the product name
+                    product.type,  # Get the product type
+                    product.saleprice  # Get the sale price
                 ]
 
                 # Validate if all fields are filled
@@ -338,7 +352,19 @@ class Productlist(GUI):  # inherits from the GUI class
         add_product_button = tk.Button(self, text="Add New Product", command=open_popup,  bg=bg_color, fg=fg_color, font=("Helvetica", 12, "bold"))
         add_product_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
 
-
+class SO(baseobject):
+    # __init__ is known as the constructor
+    def __init__(self, name, date, cusname, saleperson, total):
+        super().__init__(name)
+        self.date = date
+        self.cusname = cusname
+        self.saleperson = saleperson
+        self.total = total
+        
+    def get_name(self):
+        return "SO" + str(super().get_name())
+    
+    
 class SaleOrder(GUI):
     def __init__(self, parent, controller):
         GUI.__init__(self, parent)
@@ -424,13 +450,14 @@ class SaleOrder(GUI):
             
             # Function to save the new product to the Excel file
             def save_SO():
+                SaleOrder = SO(SOnumber_entry.get(), CreateDate_entry.get(), CusName_entry.get(), Saleperson_entry.get(), Total_entry.get())
                 # Get the data entered by the user
                 new_SO = [
-                    SOnumber_entry.get(),  # Get the SOnumber
-                    CreateDate_entry.get(),  # Get the creation date
-                    CusName_entry.get(),  # Get the customer name
-                    Saleperson_entry.get(),  # Get the sale person
-                    Total_entry.get() # Get the totoal amount of sale order
+                    SaleOrder.get_name(),  # Get the SOnumber
+                    SaleOrder.date,  # Get the creation date
+                    SaleOrder.cusname,  # Get the SOnumber
+                    SaleOrder.date, # Get the creation date
+                    SaleOrder.total
                 ]
 
                 # Validate if all fields are filled
@@ -465,7 +492,18 @@ class SaleOrder(GUI):
         add_SO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg2_color, fg=fg2_color, font=("Helvetica", 12, "bold"))
         add_SO_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
 
-
+class PO(baseobject):
+    # __init__ is known as the constructor
+    def __init__(self, name, date, vendor, buyer, total):
+        super().__init__(name)
+        self.date = date
+        self.vendor = vendor
+        self.buyer = buyer
+        self.total = total
+    def get_name(self):
+        return "PO" + str(super().get_name())
+    
+    
 class PurchaseOrder(GUI):
     def __init__(self, parent, controller):
         GUI.__init__(self, parent)
@@ -549,13 +587,14 @@ class PurchaseOrder(GUI):
             
             # Function to save the new product to the Excel file
             def save_PO():
+                PurchaseOrder = PO(POnumber_entry.get(), CreateDate_entry.get(), VendorName_entry.get(), Buyer_entry.get(), Total_entry.get())
                 # Get the data entered by the user
                 new_PO = [
-                    POnumber_entry.get(),  # Get the SOnumber
-                    CreateDate_entry.get(),  # Get the creation date
-                    VendorName_entry.get(),  # Get the customer name
-                    Buyer_entry.get(),  # Get the sale person
-                    Total_entry.get(),  # Get the totoal amount of sale order
+                    PurchaseOrder.get_name(),  # Get the SOnumber
+                    PurchaseOrder.date,  # Get the SOnumber
+                    PurchaseOrder.vendor,  # Get the SOnumber
+                    PurchaseOrder.buyer,  # Get the SOnumber
+                    PurchaseOrder.total,  # Get the SOnumber
                 ]
 
                 # Validate if all fields are filled
@@ -590,10 +629,10 @@ class PurchaseOrder(GUI):
         add_PO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg3_color, fg=fg3_color, font=("Helvetica", 12, "bold"))
         add_PO_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
 
-class Person(object):
+class Person(baseobject):
     # __init__ is known as the constructor
     def __init__(self, name, phone, email, saleperson, city):
-        self.name = name
+        super().__init__(name)
         self.phone = phone
         self.email = email
         self.saleperson = saleperson
@@ -679,7 +718,7 @@ class Customer(GUI):
                 # Get the data entered by the user
                 new_person = Person(name_entry.get(), phone_entry.get(), email_entry.get(), saleperson_entry.get(), city_entry.get()) 
                 new_customer = [
-                    new_person.name,  # Get the product name
+                    new_person.get_name(),  # Get the product name
                     new_person.phone,  # Get the product type
                     new_person.email,
                     new_person.saleperson,# Get the sale person

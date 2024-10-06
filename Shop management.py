@@ -8,8 +8,6 @@ import numpy as np
 
 # You can also use a pandas dataframe
 # you can convert the dataframe using df.to_numpy.tolist()
-product_list = [['PET', 'plastic', '318'], ['HDPE', 'Plastic', '405'], ['LDPE', 'Plastic', '525'], ['PP', 'Plastic', '309'], ['PS', 'Plastic', '405'], ['Paper', 'Paper', '534'], ['Carton', 'Paper', '314'], ['Iron', 'Metal', '405'], ['Steel', 'Metal', '530'], ['Bronze', 'Metal', '195'], ['Aluminum', 'metal', '205'], ['Copper', 'Metal', '395'], ['Silver', 'Metal', '195'], ['tin', 'Metal', '195'], ['Shoes', 'goods', '195'], ['Smartphone', 'Electric goods', '155'], ['headphone', 'Electric goods', '170'], ['Mouse', 'Electric goods', '255'], ['Laptop', 'Electric goods', '300'], ['Spare part', 'Electric goods', '300']]
-
 
 frame_styles = {"relief": "groove",
                 "bd": 3, "bg": "#BEB2A7",

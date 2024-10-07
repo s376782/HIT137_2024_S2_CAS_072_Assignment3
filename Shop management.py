@@ -13,6 +13,12 @@ frame_styles = {"relief": "groove",
                 "bd": 3, "bg": "#BEB2A7",
                 "fg": "#073bb3", "font": ("Arial", 9, "bold")}
 
+#Add new object button
+bg0_color = "#7B68EE"  # Medium Slate Blue (stronger purple)
+fg0_color = "#FFFFFF"  # White text
+btn0_color = "#6A5ACD"  # Slate Blue for buttons (also stronger)
+
+
 
 class LoginPage(tk.Tk):
 
@@ -23,7 +29,7 @@ class LoginPage(tk.Tk):
         main_frame = tk.Frame(self, bg="#708090", height=431, width=626)  # this is the background
         main_frame.pack(fill="both", expand="true")
 
-        self.geometry("626x431")  # Sets window size to 626w x 431h pixels
+        self.geometry("626x500")  # Sets window size to 626w x 431h pixels
         self.resizable(0, 0)  # This prevents any resizing of the screen
         title_styles = {"font": ("Trebuchet MS Bold", 16), "background": "blue"}
 
@@ -184,7 +190,7 @@ class MyApp(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         tk.Tk.__init__(self, *args, **kwargs)
-        main_frame = tk.Frame(self, bg="#84CEEB", height=600, width=1024)
+        main_frame = tk.Frame(self, bg="#FFF0F5", height=600, width=1024)
         main_frame.pack_propagate(0)
         main_frame.pack(fill="both", expand="true")
         main_frame.grid_rowconfigure(0, weight=1)
@@ -215,7 +221,15 @@ class MyApp(tk.Tk):
 class GUI(tk.Frame):
     def __init__(self, parent):
         tk.Frame.__init__(self, parent)
-        self.main_frame = tk.Frame(self, bg="#BEB2A7", height=600, width=1024)
+  # Get screen width and height
+        screen_width = parent.winfo_screenwidth()
+        screen_height = parent.winfo_screenheight()
+
+        # Set the main_frame to fill the screen
+        self.main_frame = tk.Frame(self, bg="#FFFFFF", height=screen_height, width=screen_width)
+        self.main_frame.pack(fill="both", expand=True)  # Ensure it expands to fill the entire screen
+        
+        
         # self.main_frame.pack_propagate(0)
         self.main_frame.pack(fill="both", expand="true")
         self.main_frame.grid_rowconfigure(0, weight=1)
@@ -251,7 +265,7 @@ class Productlist(GUI):  # inherits from the GUI class
         self.configure(bg=bg_color)
 
         frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
-        frame1.place(rely=0.05, relx=0.02, height=550, width=1000)
+        frame1.place(rely=0, relx=0, height=600, width=1535)
 
  
         # This is a treeview.
@@ -268,8 +282,8 @@ class Productlist(GUI):  # inherits from the GUI class
         tv1.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
 
-        total_label = tk.Label(self, text="Total Products: 0")
-        total_label.place(rely=0.8, relx=0.03)
+        total_label = tk.Label(self, text="Total Products: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold"))
+        total_label.place(rely=0.7, relx=0.03)
 
         def Load_data():
         
@@ -282,7 +296,10 @@ class Productlist(GUI):  # inherits from the GUI class
             
             for row in product_list1:
                 tv1.insert("", "end", values=row)
-            total_label.config(text=f"Total Products: {len(product_list1)}")
+
+            
+            # Create the label and configure it
+            total_label.config(text=f"Total Product: {len(product_list1)}")
             
         def Refresh_data():
             # Deletes the data in the current treeview and reinserts it
@@ -349,8 +366,8 @@ class Productlist(GUI):  # inherits from the GUI class
             tk.Button(popup, text="Save", command=save_product).pack(pady=20)  # Button to trigger save action
 
         # Button to open the popup for adding a new product
-        add_product_button = tk.Button(self, text="Add New Product", command=open_popup,  bg=bg_color, fg=fg_color, font=("Helvetica", 12, "bold"))
-        add_product_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
+        add_product_button = tk.Button(self, text="Add New Product", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_product_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
 
 class SO(baseobject):
     # __init__ is known as the constructor
@@ -382,7 +399,7 @@ class SaleOrder(GUI):
         self.configure(bg=bg2_color)
         
         frame2 = tk.LabelFrame(self, text="Sale Orders", bg=bg2_color, fg=fg2_color, font=("Helvetica", 16, "bold"))
-        frame2.place(rely=0.05, relx=0.02, height=550, width=1000)
+        frame2.place(rely=0, relx=0, height=600, width=1535)
         
         
         # This is a treeview.
@@ -399,8 +416,8 @@ class SaleOrder(GUI):
         tv2.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
 
-        total_label = tk.Label(self, text="Total Sale Order: 0")
-        total_label.place(rely=0.8, relx=0.03)
+        total_label = tk.Label(self, text="Total Sale Order: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold") )
+        total_label.place(rely=0.7, relx=0.03)
         
         def Load_data():
             
@@ -489,8 +506,8 @@ class SaleOrder(GUI):
             tk.Button(popup, text="Save", command=save_SO).pack(pady=20)  # Button to trigger save action
 
         # Button to open the popup for adding a new product
-        add_SO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg2_color, fg=fg2_color, font=("Helvetica", 12, "bold"))
-        add_SO_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
+        add_SO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_SO_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
 
 class PO(baseobject):
     # __init__ is known as the constructor
@@ -520,7 +537,7 @@ class PurchaseOrder(GUI):
         # Set the background color of the main window
         self.configure(bg=bg3_color)
         frame3 = tk.LabelFrame(self, text="Purchase Orders", bg=bg3_color, fg=fg3_color, font=("Helvetica", 16, "bold"))
-        frame3.place(rely=0.05, relx=0.02, height=550, width=1000)
+        frame3.place(rely=0, relx=0, height=600, width=1535)
         
         # This is a treeview.
         tv3 = ttk.Treeview(frame3)
@@ -536,8 +553,8 @@ class PurchaseOrder(GUI):
         tv3.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
         
-        total_label = tk.Label(self, text="Purchase Order: 0")
-        total_label.place(rely=0.8, relx=0.03)
+        total_label = tk.Label(self, text="Purchase Order: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold"))
+        total_label.place(rely=0.7, relx=0.03)
 
         def Load_data():
             file_path3 = "Purchase order.xlsx"
@@ -626,8 +643,8 @@ class PurchaseOrder(GUI):
             tk.Button(popup, text="Save", command=save_PO).pack(pady=20)  # Button to trigger save action
 
         # Button to open the popup for adding a new product
-        add_PO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg3_color, fg=fg3_color, font=("Helvetica", 12, "bold"))
-        add_PO_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
+        add_PO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_PO_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
 
 class Person(baseobject):
     # __init__ is known as the constructor
@@ -651,7 +668,7 @@ class Customer(GUI):
         self.configure(bg=bg2_color)
         
         frame4 = tk.LabelFrame(self, frame_styles, text="Customer", bg=bg2_color, fg=fg2_color, font=("Helvetica", 16, "bold"))
-        frame4.place(rely=0.05, relx=0.02, height=550, width=1000)
+        frame4.place(rely=0, relx=0, height=600, width=1535)
         tv4 = ttk.Treeview(frame4)
         column_list_account = ["Name", "Phone", "Email", "Saleperson", "City"]
         tv4['columns'] = column_list_account
@@ -665,8 +682,8 @@ class Customer(GUI):
         tv4.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
         
-        total_label = tk.Label(self, text="Customer: 0")
-        total_label.place(rely=0.8, relx=0.03)
+        total_label = tk.Label(self, text="Customer: 0",  bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold"))
+        total_label.place(rely=0.7, relx=0.03)
 
         def Load_data():
               # Read the data from the Excel file
@@ -754,8 +771,8 @@ class Customer(GUI):
             tk.Button(popup, text="Save", command=save_customer).pack(pady=20)  # Button to trigger save action
 
         # Button to open the popup for adding a new product
-        add_product_button = tk.Button(self, text="Add New Customer", command=open_popup,  bg=bg2_color, fg=fg2_color, font=("Helvetica", 12, "bold"))
-        add_product_button.place(rely=0.9, relx=0.03)  # Position the button at the bottom of the window
+        add_product_button = tk.Button(self, text="Add New Customer", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_product_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
 
 
 

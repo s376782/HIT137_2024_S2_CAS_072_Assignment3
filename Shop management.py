@@ -161,6 +161,14 @@ class MenuBar(tk.Menu):
         tk.Menu.__init__(self, parent)
         # Define a bold font for the menu items
         bold_font = ('Arial', 10, 'bold')
+    
+        menu_sale = tk.Menu(self, tearoff=0)
+        self.add_cascade(label="SALE", menu=menu_sale)
+        menu_sale.add_command(label="SALE ORDER", command=lambda: parent.show_frame(SaleOrder), font=bold_font)
+
+        menu_purchase = tk.Menu(self, tearoff=0)
+        self.add_cascade(label="PURCHASE", menu=menu_purchase)
+        menu_purchase.add_command(label="PURCHASE ORDER", command=lambda: parent.show_frame(PurchaseOrder), font=bold_font)
         
         menu_file = tk.Menu(self, tearoff=0)
         self.add_cascade(label="PRODUCT", menu=menu_file)
@@ -171,13 +179,6 @@ class MenuBar(tk.Menu):
         self.add_cascade(label="CONTACT", menu=menu_contact)
         menu_contact.add_command(label="LIST OF CUSTOMER", command=lambda: parent.show_frame(Customer), font=bold_font)
 
-        menu_sale = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="SALE", menu=menu_sale)
-        menu_sale.add_command(label="SALE ORDER", command=lambda: parent.show_frame(SaleOrder), font=bold_font)
-
-        menu_purchase = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="PURCHASE", menu=menu_purchase)
-        menu_purchase.add_command(label="PURCHASE ORDER", command=lambda: parent.show_frame(PurchaseOrder), font=bold_font)
         
         menu_aiCheckTool = tk.Menu(self, tearoff=0)
         self.add_cascade(label="AI TOOL", menu=menu_aiCheckTool)
@@ -195,15 +196,16 @@ class MyApp(tk.Tk):
         main_frame.pack(fill="both", expand="true")
         main_frame.grid_rowconfigure(0, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
+        
         # self.resizable(0, 0) prevents the app from being resized
         # self.geometry("1024x600") fixes the applications size
         self.frames = {}
-        pages = (Productlist, SaleOrder, PurchaseOrder, Customer, AItool)
+        pages = (SaleOrder, PurchaseOrder,Productlist, Customer, AItool)
         for F in pages:
             frame = F(main_frame, self)
             self.frames[F] = frame
             frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(Productlist)
+        self.show_frame(SaleOrder)
         menubar = MenuBar(self)
         tk.Tk.config(self, menu=menubar)
 
@@ -241,133 +243,6 @@ class baseobject(object):
     def get_name(self):
         return self._name
 
-class Product(baseobject):
-    # __init__ is known as the constructor
-    def __init__(self, name, type, saleprice):
-        super().__init__(name)
-        self.type = type
-        self.saleprice = saleprice
-        
-class Productlist(GUI):  # inherits from the GUI class
-    
-    def __init__(self, parent, controller):
-        GUI.__init__(self, parent)
-        # Define the path to the Excel file as an instance variable
-        self.file_path = "Product.xlsx"  # Set self.file_path here
-
-        # Define the path to the Excel file as an instance variable
-        # Define colors
-        bg_color = "#3b5998"  # blue
-        fg_color = "#ffffff"  # White text
-        btn_color = "#4267B2"  # Slightly lighter blue for buttons
-
-        # Set the background color of the main window
-        self.configure(bg=bg_color)
-
-        frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
-        frame1.place(rely=0, relx=0, height=600, width=1535)
-
- 
-        # This is a treeview.
-        tv1 = ttk.Treeview(frame1)
-        column_list_account = ["Name", "Type", "Sale price"]
-        tv1['columns'] = column_list_account
-        tv1["show"] = "headings"  # removes empty column
-        for column in column_list_account:
-            tv1.heading(column, text=column)
-            tv1.column(column, width=50)
-        tv1.place(relheight=1, relwidth=0.995)
-        treescroll = tk.Scrollbar(frame1)
-        treescroll.configure(command=tv1.yview)
-        tv1.configure(yscrollcommand=treescroll.set)
-        treescroll.pack(side="right", fill="y")
-
-        total_label = tk.Label(self, text="Total Products: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold"))
-        total_label.place(rely=0.7, relx=0.03)
-
-        def Load_data():
-        
-            # Read the data from the Excel file
-            file_path = "Product.xlsx"
-            df = pd.read_excel(file_path)  # Assuming the file has the required columns
-                
-                # Convert the DataFrame to a list of lists (as expected by Treeview)
-            product_list1 = df.values.tolist()
-            
-            for row in product_list1:
-                tv1.insert("", "end", values=row)
-
-            
-            # Create the label and configure it
-            total_label.config(text=f"Total Product: {len(product_list1)}")
-            
-        def Refresh_data():
-            # Deletes the data in the current treeview and reinserts it
-            tv1.delete(*tv1.get_children())  # *=splat operator
-            Load_data()
-
-        Load_data()
-
-        def open_popup():
-            # Create a new popup window
-            popup = tk.Toplevel(self)
-            popup.title("Add New Product")  # Set the window title
-            popup.geometry("400x300")  # Set the size of the popup window
-
-            # Labels and entry fields for product name, type, and sale price
-            tk.Label(popup, text="Product Name").pack(pady=5)  # Label for product name
-            name_entry = tk.Entry(popup)  # Entry field for product name
-            name_entry.pack(pady=5)
-
-            tk.Label(popup, text="Product Type").pack(pady=5)  # Label for product type
-            type_entry = tk.Entry(popup)  # Entry field for product type
-            type_entry.pack(pady=5)
-
-            tk.Label(popup, text="Sale Price").pack(pady=5)  # Label for sale price
-            price_entry = tk.Entry(popup)  # Entry field for sale price
-            price_entry.pack(pady=5)
-
-            # Function to save the new product to the Excel file
-            def save_product():
-                product = Product(name_entry.get(), type_entry.get(), price_entry.get())
-                # Get the data entered by the user
-                new_product = [
-                    product.get_name(),  # Get the product name
-                    product.type,  # Get the product type
-                    product.saleprice  # Get the sale price
-                ]
-
-                # Validate if all fields are filled
-                if not all(new_product):
-                    messagebox.showerror("Error", "All fields must be filled")  # Show error if fields are empty
-                    return
-
-                try:
-                    # Read the existing Excel data into a pandas DataFrame
-                    df = pd.read_excel(self.file_path)
-
-                    # Append the new product to the DataFrame
-                    df.loc[len(df)] = new_product
-
-                    # Save the updated DataFrame back to the Excel file
-                    df.to_excel(self.file_path, index=False)
-
-                    # Refresh the Treeview to show the newly added product
-                    Refresh_data()
-
-                    # Close the popup window after saving the product
-                    popup.destroy()
-
-                except Exception as e:
-                    # Show error message if saving fails
-                    messagebox.showerror("Error", f"Failed to save product: {e}")
-
-            # Save button in the popup window
-            tk.Button(popup, text="Save", command=save_product).pack(pady=20)  # Button to trigger save action
-
-        # Button to open the popup for adding a new product
-        add_product_button = tk.Button(self, text="Add New Product", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
-        add_product_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
 
 class SO(baseobject):
     # __init__ is known as the constructor
@@ -416,8 +291,27 @@ class SaleOrder(GUI):
         tv2.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
 
-        total_label = tk.Label(self, text="Total Sale Order: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold") )
-        total_label.place(rely=0.7, relx=0.03)
+        total_label = tk.Label(self, text="SUMMARY", bg="#FFFFFF", fg = "#000000", font=("Arial", 12, "bold") )
+        total_label.place(rely=0.7, relx=0.02)
+
+        total_label = tk.Label(self, text="Total Sale Order: 0", bg="#FFFFFF", fg = "#8B0000", font=("Arial", 11, "bold") )
+        total_label.place(rely=0.74, relx=0.02)
+        
+        #Count data total
+        total_label2 = tk.Label(self, text="Total amount: 0", bg="#FFFFFF", fg = "#8B0000", font=("Arial", 11, "bold"))
+        total_label2.place(rely=0.78, relx=0.02)
+        
+        #Count Total customer have orders
+        total_label3 = tk.Label(self, text="Total customer have orders: 0", bg="#FFFFFF", fg = "#8B0000", font=("Arial", 11, "bold"))
+        total_label3.place(rely=0.82, relx=0.02)
+        
+        #Count Top 1 regular customer
+        total_label4 = tk.Label(self, text="Top 1 regular customer: 0", bg="#FFFFFF", fg = "#8B0000", font=("Arial", 11, "bold"))
+        total_label4.place(rely=0.86, relx=0.02)
+        
+        #Count Top sale person
+        total_label5 = tk.Label(self, text="Top sale person: 0", bg="#FFFFFF", fg = "#8B0000", font=("Arial", 11, "bold"))
+        total_label5.place(rely=0.90, relx=0.02)        
         
         def Load_data():
             
@@ -429,7 +323,25 @@ class SaleOrder(GUI):
             saleOrderlist = df.values.tolist()
             for row in saleOrderlist:
                 tv2.insert("", "end", values=row)
-            total_label.config(text=f"Total Sale Order: {len(saleOrderlist)}")
+            #Count total sale order
+            total_label.config(text=f"- Total Sale Order: {len(saleOrderlist)}")
+            
+            #Count total amount
+            total_label2.config(text=f"- Total amount: {df["Total"].sum()}")
+            
+            #Get number of customers have orders
+            total_label3.config(text=f"- Total customer have orders: {df["Customer name"].nunique()}")
+            
+            #Get Top 1 regular customer
+            top_customer = df.groupby('Customer name')['Total'].sum().idxmax()  #find sale person
+            max_amount = df.groupby('Customer name')['Total'].sum().max()  # Lấy tổng doanh số của người đó
+            total_label4.config(text=f"- Top customer: {top_customer} with amount: {max_amount}")
+            
+            #Get Top 1 sale person
+            top_salesperson = df.groupby('Sale person')['Total'].sum().idxmax()  #find sale person
+            max_sales_amount = df.groupby('Sale person')['Total'].sum().max()  # Lấy tổng doanh số của người đó
+            total_label5.config(text=f"- Top Sales person: {top_salesperson} with sales amount: {max_sales_amount}")
+            
             
         def Refresh_data():
             # Deletes the data in the current treeview and reinserts it.
@@ -553,8 +465,28 @@ class PurchaseOrder(GUI):
         tv3.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
         
-        total_label = tk.Label(self, text="Purchase Order: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold"))
-        total_label.place(rely=0.7, relx=0.03)
+        total_label = tk.Label(self, text="SUMMARY", bg="#FFFFFF", fg = "#000000", font=("Arial", 12, "bold") )
+        total_label.place(rely=0.66, relx=0.02)
+        
+        total_label1 = tk.Label(self, text="Total Purchase Order: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 9, "bold"))
+        total_label.place(rely=0.7, relx=0.02)
+        
+        #Count data total
+        total_label2 = tk.Label(self, text="Total amount: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
+        total_label2.place(rely=0.74, relx=0.02)
+        
+        #Count Total vendor
+        total_label3 = tk.Label(self, text="Total customer have orders: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
+        total_label3.place(rely=0.78, relx=0.02)
+        
+        #Count Top 1 regular vendor
+        total_label4 = tk.Label(self, text="Top regular vendor: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
+        total_label4.place(rely=0.82, relx=0.02)
+        
+        #Count Top buyer
+        total_label5 = tk.Label(self, text="Top buyer: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
+        total_label5.place(rely=0.86, relx=0.02)        
+
 
         def Load_data():
             file_path3 = "Purchase order.xlsx"
@@ -566,8 +498,26 @@ class PurchaseOrder(GUI):
             
             for row in purchaseOrderlist:
                 tv3.insert("", "end", values=row)
-            total_label.config(text=f"Total Purchase Order: {len(purchaseOrderlist)}")
+            # total
+            #Count number of PO
+            total_label1.config(text=f"- Total Purchase Order: {len(purchaseOrderlist)}")
             
+            #Count total amount
+            total_label2.config(text=f"- Total amount: {df["Total"].sum()}")
+            
+            #Get number of customers have orders
+            total_label3.config(text=f"- Total customer have orders: {df["Vendor name"].nunique()}")
+            
+            #Get Top 1 regular customer
+            top_vendor = df.groupby('Vendor name')['Total'].sum().idxmax()  #find sale person
+            max_amount = df.groupby('Vendor name')['Total'].sum().max()  # Lấy tổng doanh số của người đó
+            total_label4.config(text=f"- Top vendor: {top_vendor} with amount: {max_amount}")
+            
+            #Get Top 1 buyer
+            top_buyer = df.groupby('Buyer')['Total'].sum().idxmax()  #find sale person
+            max_buying_amount = df.groupby('Buyer')['Total'].sum().max()  # Lấy tổng doanh số của người đó
+            total_label5.config(text=f"- Top Sales person: {top_buyer} with sales amount: {max_buying_amount}")
+               
         def Refresh_data():
             # Deletes the data in the current treeview and reinserts it.
             tv3.delete(*tv3.get_children())  # *=splat operator
@@ -643,8 +593,176 @@ class PurchaseOrder(GUI):
             tk.Button(popup, text="Save", command=save_PO).pack(pady=20)  # Button to trigger save action
 
         # Button to open the popup for adding a new product
-        add_PO_button = tk.Button(self, text="Add New Sale Order", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_PO_button = tk.Button(self, text="Add new purchase order", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
         add_PO_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
+
+
+
+class Product(baseobject):
+    # __init__ is known as the constructor
+    def __init__(self, name, type, saleprice):
+        super().__init__(name)
+        self.type = type
+        self.saleprice = saleprice
+
+
+class Productlist(GUI):  # inherits from the GUI class
+    
+    def __init__(self, parent, controller):
+        GUI.__init__(self, parent)
+        # Define the path to the Excel file as an instance variable
+        self.file_path = "Product.xlsx"  # Set self.file_path here
+
+        # Define colors
+        bg_color = "#3b5998"  # blue
+        fg_color = "#ffffff"  # White text
+        btn_color = "#4267B2"  # Slightly lighter blue for buttons
+
+        # Set the background color of the main window
+        self.configure(bg=bg_color)
+
+        frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
+        frame1.place(rely=0.0, relx=0, height=600, width=1535)
+
+        # Product list frame
+        frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
+        frame1.place(rely=0.0, relx=0, height=600, width=1535)
+
+        # This is a treeview.
+        tv1 = ttk.Treeview(frame1)
+        column_list_account = ["Name", "Type", "Sale price"]
+        tv1['columns'] = column_list_account
+        tv1["show"] = "headings"  # removes empty column
+        for column in column_list_account:
+            tv1.heading(column, text=column)
+            tv1.column(column, width=50)
+        tv1.place(relheight=1, relwidth=0.995)
+        treescroll = tk.Scrollbar(frame1)
+        treescroll.configure(command=tv1.yview)
+        tv1.configure(yscrollcommand=treescroll.set)
+        treescroll.pack(side="right", fill="y")
+
+
+        total_label = tk.Label(self, text="SUMMARY", bg="#FFFFFF", fg = "#000000", font=("Arial", 12, "bold") )
+        total_label.place(rely=0.7, relx=0.02)
+        
+        #Count data total
+        total_label1 = tk.Label(self, text="Total Products: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        total_label1.place(rely=0.74, relx=0.02)
+
+        #Count data total
+        total_label2 = tk.Label(self, text="Total Type: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        total_label2.place(rely=0.78, relx=0.02)
+        
+        #Count data total
+        total_label3 = tk.Label(self, text="Max price product: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        total_label3.place(rely=0.82, relx=0.02)
+        
+        #Count data total
+        total_label4 = tk.Label(self, text="Min price product: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        total_label4.place(rely=0.86, relx=0.02)          
+
+
+        def Load_data():
+        
+            # Read the data from the Excel file
+            file_path = "Product.xlsx"
+            df = pd.read_excel(file_path)  # Assuming the file has the required columns
+               
+                # Convert the DataFrame to a list of lists (as expected by Treeview)
+            product_list1 = df.values.tolist()
+            
+            for row in product_list1:
+                tv1.insert("", "end", values=row)
+        
+        
+            # Create the label and configure it
+            #Count product
+            total_label1.config(text=f"- Total Product: {len(product_list1)}")
+            
+            #Count type
+            total_label2.config(text=f"- Total Type: {df["Type"].nunique()}")
+            
+            # Get max price product
+            max_price_index = df['Price'].idxmax()  # index of max price product
+            max_price_product_name = df.iloc[max_price_index]['Name']
+            max_price_product_price = df.iloc[max_price_index]['Price']
+            total_label3.config(text=f"- Max price product: {max_price_product_name} with price: {max_price_product_price:.2f}")
+
+            # Get min price product
+            min_price_index = df['Price'].idxmin()  # index of min price product
+            min_price_product_name = df.iloc[min_price_index]['Name']
+            min_price_product_price = df.iloc[min_price_index]['Price']
+            total_label4.config(text=f"- Min price product: {min_price_product_name} with price: {min_price_product_price:.2f}")
+
+    # Include other methods like Refresh_data, open_popup, etc.
+        def Refresh_data():
+            # Deletes the data in the current treeview and reinserts it
+            tv1.delete(*tv1.get_children())  # *=splat operator
+            Load_data()
+
+        Load_data()
+
+        def open_popup():
+            # Create a new popup window
+            popup = tk.Toplevel(self)
+            popup.title("Add New Product")  # Set the window title
+            popup.geometry("400x300")  # Set the size of the popup window
+
+            # Labels and entry fields for product name, type, and sale price
+            tk.Label(popup, text="Product Name").pack(pady=5)  # Label for product name
+            name_entry = tk.Entry(popup)  # Entry field for product name
+            name_entry.pack(pady=5)
+
+            tk.Label(popup, text="Product Type").pack(pady=5)  # Label for product type
+            type_entry = tk.Entry(popup)  # Entry field for product type
+            type_entry.pack(pady=5)
+
+            tk.Label(popup, text="Sale Price").pack(pady=5)  # Label for sale price
+            price_entry = tk.Entry(popup)  # Entry field for sale price
+            price_entry.pack(pady=5)
+
+            # Function to save the new product to the Excel file
+            def save_product():
+                product = Product(name_entry.get(), type_entry.get(), price_entry.get())
+                # Get the data entered by the user
+                new_product = [
+                    product.get_name(),  # Get the product name
+                    product.type,  # Get the product type
+                    product.saleprice  # Get the sale price
+                ]
+
+                # Validate if all fields are filled
+                if not all(new_product):
+                    messagebox.showerror("Error", "All fields must be filled")  # Show error if fields are empty
+                    return
+
+                try:
+                    # Read the existing Excel data into a pandas DataFrame
+                    df = pd.read_excel(self.file_path)
+
+                    # Append the new product to the DataFrame
+                    df.loc[len(df)] = new_product
+
+                    # Save the updated DataFrame back to the Excel file
+                    df.to_excel(self.file_path, index=False)
+
+                    # Refresh the Treeview to show the newly added product
+                    Refresh_data()
+
+                    # Close the popup window after saving the product
+                    popup.destroy()
+
+                except Exception as e:
+                    # Show error message if saving fails
+                    messagebox.showerror("Error", f"Failed to save product: {e}")
+
+            # Save button in the popup window
+            tk.Button(popup, text="Save", command=save_product).pack(pady=20)  # Button to trigger save action
+
+        # Button to open the popup for adding a new product
+        add_product_button = tk.Button(self, text="Add New Product", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_product_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
 
 class Person(baseobject):
     # __init__ is known as the constructor
@@ -682,8 +800,12 @@ class Customer(GUI):
         tv4.configure(yscrollcommand=treescroll.set)
         treescroll.pack(side="right", fill="y")
         
-        total_label = tk.Label(self, text="Customer: 0",  bg="#FFFFFF", fg = "#000000", font=("Arial", 9, "bold"))
-        total_label.place(rely=0.7, relx=0.03)
+        #Summary
+        total_label = tk.Label(self, text="SUMMARY", bg="#FFFFFF", fg = "#000000", font=("Arial", 12, "bold"))
+        total_label.place(rely=0.7, relx=0.02)
+        
+        total_label1 = tk.Label(self, text="Customer: 0", bg="#FFFFFF", fg = "#000000", font=("Arial", 11, "bold"))
+        total_label1.place(rely=0.74, relx=0.02)
 
         def Load_data():
               # Read the data from the Excel file
@@ -695,7 +817,7 @@ class Customer(GUI):
             
             for row in customer:
                 tv4.insert("", "end", values=row)
-            total_label.config(text=f"Total customer: {len(customer)}")
+            total_label1.config(text=f"Total customer: {len(customer)}")
             
         def Refresh_data():
             # Deletes the data in the current treeview and reinserts it

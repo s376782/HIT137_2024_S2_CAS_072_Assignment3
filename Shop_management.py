@@ -7,8 +7,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-# You can also use a pandas dataframe
-# you can convert the dataframe using df.to_numpy.tolist()
 
 frame_styles = {"relief": "groove",
                 "bd": 3, "bg": "#BEB2A7",
@@ -163,6 +161,10 @@ class MenuBar(tk.Menu):
         # Define a bold font for the menu items
         bold_font = ('Arial', 10, 'bold')
     
+        menu_dashboard = tk.Menu(self, tearoff=0)
+        self.add_cascade(label="DASHBOARD", menu=menu_dashboard)
+        menu_dashboard.add_command(label="DASHBOARD", command=lambda: parent.show_frame(Dashboard), font=bold_font)
+
         menu_sale = tk.Menu(self, tearoff=0)
         self.add_cascade(label="SALE", menu=menu_sale)
         menu_sale.add_command(label="SALE ORDER", command=lambda: parent.show_frame(SaleOrder), font=bold_font)
@@ -180,11 +182,6 @@ class MenuBar(tk.Menu):
         self.add_cascade(label="CONTACT", menu=menu_contact)
         menu_contact.add_command(label="LIST OF CUSTOMER", command=lambda: parent.show_frame(Customer), font=bold_font)
 
-        
-        menu_aiCheckTool = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="DASHBOARD AND AI TOOL", menu=menu_aiCheckTool)
-        menu_aiCheckTool.add_command(label="Dashboard", command=lambda: parent.show_frame(Dashboard), font=bold_font)
-        menu_aiCheckTool.add_command(label="AI tool", command=lambda: parent.show_frame(), font=bold_font)
 
 
 class MyApp(tk.Tk):
@@ -192,16 +189,14 @@ class MyApp(tk.Tk):
     def __init__(self, *args, **kwargs):
 
         tk.Tk.__init__(self, *args, **kwargs)
-        main_frame = tk.Frame(self, bg="#FFF0F5", height=600, width=1024)
+        main_frame = tk.Frame(self, bg="#FFF0F5", height=800, width=1900)
         main_frame.pack_propagate(0)
         main_frame.pack(fill="both", expand="true")
         main_frame.grid_rowconfigure(0, weight=1)
         main_frame.grid_columnconfigure(0, weight=1)
         
-        # self.resizable(0, 0) prevents the app from being resized
-        # self.geometry("1024x600") fixes the applications size
         self.frames = {}
-        pages = (SaleOrder, PurchaseOrder,Productlist, Customer, Dashboard)
+        pages = (Dashboard, SaleOrder, PurchaseOrder,Productlist, Customer)
         for F in pages:
             frame = F(main_frame, self)
             self.frames[F] = frame
@@ -213,9 +208,6 @@ class MyApp(tk.Tk):
     def show_frame(self, name):
         frame = self.frames[name]
         frame.tkraise()
-
-    def OpenNewWindow(self):
-        OpenNewWindow()
 
     def Quit_application(self):
         self.destroy()
@@ -275,7 +267,7 @@ class SaleOrder(GUI):
         self.configure(bg=bg2_color)
         
         frame2 = tk.LabelFrame(self, text="Sale Orders", bg=bg2_color, fg=fg2_color, font=("Helvetica", 16, "bold"))
-        frame2.place(rely=0, relx=0, height=600, width=1535)
+        frame2.place(rely=0, relx=0, height=700, width=1900)
         
         
         # This is a treeview.
@@ -441,7 +433,6 @@ class PurchaseOrder(GUI):
                 # Define the path to the Excel file as an instance variable
         self.file_path3 = "Purchase order.xlsx"  # Set self.file_path here
 
-        # Define the path to the Excel file as an instance variable
         # Define colors
         bg3_color = "#3CB371"  # Medium sea green for background
         fg3_color = "#ffffff"  # White text remains unchanged
@@ -450,7 +441,7 @@ class PurchaseOrder(GUI):
         # Set the background color of the main window
         self.configure(bg=bg3_color)
         frame3 = tk.LabelFrame(self, text="Purchase Orders", bg=bg3_color, fg=fg3_color, font=("Helvetica", 16, "bold"))
-        frame3.place(rely=0, relx=0, height=600, width=1535)
+        frame3.place(rely=0, relx=0, height=700, width=1900)
         
         # This is a treeview.
         tv3 = ttk.Treeview(frame3)
@@ -622,12 +613,9 @@ class Productlist(GUI):  # inherits from the GUI class
         # Set the background color of the main window
         self.configure(bg=bg_color)
 
-        frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
-        frame1.place(rely=0.0, relx=0, height=600, width=1535)
-
         # Product list frame
         frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
-        frame1.place(rely=0.0, relx=0, height=600, width=1535)
+        frame1.place(rely=0.0, relx=0, height=700, width=1900)
 
         # This is a treeview.
         tv1 = ttk.Treeview(frame1)
@@ -787,7 +775,7 @@ class Customer(GUI):
         self.configure(bg=bg2_color)
         
         frame4 = tk.LabelFrame(self, frame_styles, text="Customer", bg=bg2_color, fg=fg2_color, font=("Helvetica", 16, "bold"))
-        frame4.place(rely=0, relx=0, height=600, width=1535)
+        frame4.place(rely=0, relx=0, height=700, width=1900)
         tv4 = ttk.Treeview(frame4)
         column_list_account = ["Name", "Phone", "Email", "Saleperson", "City"]
         tv4['columns'] = column_list_account
@@ -921,37 +909,44 @@ class Dashboard(GUI):
         df3 = pd.read_excel("Product.xlsx")
         df4 = pd.read_excel("Customer.xlsx")
 
-    # Get unique customer names and grouped totals
-        X1 = df1['Customer name'].unique()
-        Y1 = df1.groupby('Customer name')['Total'].sum()
+    # # Get unique customer names and grouped totals
+    #     X1 = df1['Customer name'].unique()
+    #     Y1 = df1.groupby('Customer name')['Total'].sum()
+        # Get top 10 customer names and grouped totals
+        top_customers = df1.groupby('Customer name')['Total'].sum().sort_values(ascending=False).head(10)
+        X1 = top_customers.index  # Customer names
+        Y1 = top_customers.values  # Corresponding totals
 
         # Get unique sale person names and grouped totals
-        X2 = df1['Sale person'].unique()
-        Y2 = df1.groupby('Sale person')['Total'].sum()
+        top_saleperson = df1.groupby('Sale person')['Total'].sum().sort_values(ascending=False).head(10)
+        X2 = top_saleperson.index
+        Y2 = top_saleperson.values
         #Y2 = Y2pre.sort_values(ascending=False).head(5)
         
         
         # Get unique vendor names and grouped totals
-        X3 = df2['Vendor name'].unique()
-        Y3 = df2.groupby('Vendor name')['Total'].sum()
-        #Y3 = Y3pre.sort_values(ascending=False).head(5)
+        top_vendor = df2.groupby('Vendor name')['Total'].sum().sort_values(ascending=False).head(10)
+        X3 = top_vendor.index
+        Y3 = top_vendor.values
     
 
         # Function to create bar charts and return figure
         def create_barchart(x, y, labelx="Customer", labely="Total amount", colors='maroon', titleofchart="Total order value for each customer", rotation=45):
-            fig, ax = plt.subplots(figsize=(9, 5))
+            fig, ax = plt.subplots(figsize=(8, 5))
             ax.bar(x, y, color=colors, width=0.4)
             ax.set_xlabel(labelx)
             ax.set_ylabel(labely)
-            ax.set_title(titleofchart)
+            ax.set_title(titleofchart, fontweight = "bold", fontsize = "16")
             ax.set_xticklabels(x, rotation=rotation)
+            plt.tight_layout() 
             return fig
 
         # Function to create pie chart and return figure
         def create_piechart(labels, values, title="Distribution of Types"):
-            fig, ax = plt.subplots(figsize=(7, 5))
+            fig, ax = plt.subplots(figsize=(8, 5))
             ax.pie(values, labels=labels, autopct='%1.1f%%')
-            ax.set_title(title)
+            ax.set_title(title, fontweight = "bold", fontsize = "16")
+            plt.tight_layout()
             return fig
 
         # Frame for Customer Order Bar Chart
@@ -961,7 +956,7 @@ class Dashboard(GUI):
         # Customer order bar chart
         # Sort and get the top 5 customers
         
-        fig1 = create_barchart(X1, Y1, "Customer", "Total sale amount", 'maroon', "Total order value for each customer")
+        fig1 = create_barchart(X1, Y1, "Customer", "Total sale amount", 'maroon', "Total order value for top 10 customers")
         canvas1 = FigureCanvasTkAgg(fig1, master=framebar1)
         canvas1.draw()
         canvas1.get_tk_widget().pack()
@@ -971,7 +966,7 @@ class Dashboard(GUI):
         framebar2.grid(row=0, column=1, padx=10, pady=10)
 
         # Sale person bar chart
-        fig2 = create_barchart(X2, Y2, "Sale person", "Total sale amount", 'blue', "Total sale amount for each sale person")
+        fig2 = create_barchart(X2, Y2, "Sale person", "Total sale amount", 'blue', "Total sale amount for top 10 sellers")
         canvas2 = FigureCanvasTkAgg(fig2, master=framebar2)
         canvas2.draw()
         canvas2.get_tk_widget().pack()
@@ -981,20 +976,10 @@ class Dashboard(GUI):
         framebar3.grid(row=1, column=0, padx=10, pady=10)
 
         # Vendor bar chart
-        fig3 = create_barchart(X3, Y3, "Vendor name", "Total purchase amount", 'yellow', "Total purchase amount for each vendor")
+        fig3 = create_barchart(X3, Y3, "Vendor name", "Total purchase amount", 'yellow', "Total purchase amount for top 10 vendors")
         canvas3 = FigureCanvasTkAgg(fig3, master=framebar3)
         canvas3.draw()
         canvas3.get_tk_widget().pack()
-
-        # # Frame for Buyer Bar Chart
-        # framebar4 = tk.Frame(frame5)
-        # framebar4.grid(row=1, column=1, padx=10, pady=10)
-
-        # # # Buyer bar chart
-        # fig4 = create_barchart(X4, Y4, "Buyer", "Total purchase amount", 'brown', "Total purchase amount for buyer")
-        # canvas4 = FigureCanvasTkAgg(fig4, master=framebar4)
-        # canvas4.draw()
-        # canvas4.get_tk_widget().pack()
 
         # Frame for Pie Chart (Types)
         framebar5 = tk.Frame(frame5)
@@ -1011,28 +996,6 @@ class Dashboard(GUI):
 
         # Run the Tkinter main loop
         label1 = tk.Label(self.main_frame, font=("Verdana", 20), text="AI tool")
-        label1.pack(side="top")
-            
-            
-class OpenNewWindow(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
-
-        tk.Tk.__init__(self, *args, **kwargs)
-
-        main_frame = tk.Frame(self)
-        main_frame.pack_propagate(0)
-        main_frame.pack(fill="both", expand="true")
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(0, weight=1)
-        self.title("Here is the Title of the Window")
-        self.geometry("500x500")
-        self.resizable(0, 0)
-
-        frame1 = ttk.LabelFrame(main_frame, text="This is a ttk LabelFrame")
-        frame1.pack(expand=True, fill="both")
-
-        label1 = tk.Label(frame1, font=("Verdana", 20), text="OpenNewWindow Page")
         label1.pack(side="top")
 
 

@@ -7,6 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
+from LoginPage import LoginPage
+from application import Application
+
 
 frame_styles = {"relief": "groove",
                 "bd": 3, "bg": "#BEB2A7",
@@ -17,200 +20,6 @@ bg0_color = "#7B68EE"  # Medium Slate Blue (stronger purple)
 fg0_color = "#FFFFFF"  # White text
 btn0_color = "#6A5ACD"  # Slate Blue for buttons (also stronger)
 
-
-
-class LoginPage(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
-
-        tk.Tk.__init__(self, *args, **kwargs)
-
-        main_frame = tk.Frame(self, bg="#708090", height=431, width=626)  # this is the background
-        main_frame.pack(fill="both", expand="true")
-
-        self.geometry("626x500")  # Sets window size to 626w x 431h pixels
-        self.resizable(0, 0)  # This prevents any resizing of the screen
-        title_styles = {"font": ("Trebuchet MS Bold", 16), "background": "blue"}
-
-        text_styles = {"font": ("Verdana", 14),
-                       "background": "blue",
-                       "foreground": "#E1FFFF"}
-
-        frame_login = tk.Frame(main_frame, bg="blue", relief="groove", bd=2)  # this is the frame that holds all the login details and buttons
-        frame_login.place(rely=0.30, relx=0.17, height=130, width=400)
-
-        label_title = tk.Label(frame_login, title_styles, text="Login")
-        label_title.grid(row=0, column=1, columnspan=1)
-
-        label_user = tk.Label(frame_login, text_styles, text="Username:")
-        label_user.grid(row=1, column=0)
-
-        label_pw = tk.Label(frame_login, text_styles, text="Password:")
-        label_pw.grid(row=2, column=0)
-
-        entry_user = ttk.Entry(frame_login, width=45, cursor="xterm")
-        entry_user.grid(row=1, column=1)
-
-        entry_pw = ttk.Entry(frame_login, width=45, cursor="xterm", show="*")
-        entry_pw.grid(row=2, column=1)
-
-        button = ttk.Button(frame_login, text="Login", command=lambda: getlogin())
-        button.place(rely=0.70, relx=0.50)
-
-        signup_btn = ttk.Button(frame_login, text="Register", command=lambda: get_signup())
-        signup_btn.place(rely=0.70, relx=0.75)
-
-        def get_signup():
-            SignupPage()
-
-        def getlogin():
-            username = entry_user.get()
-            password = entry_pw.get()
-            # if your want to run the script as it is set validation = True
-            validation = validate(username, password)
-            if validation:
-                tk.messagebox.showinfo("Login Successful",
-                                       "Welcome {}".format(username))
-                root.deiconify()
-                top.destroy()
-            else:
-                tk.messagebox.showerror("Information", "The Username or Password you have entered are incorrect ")
-
-        def validate(username, password):
-            # Checks the text file for a username/password combination.
-            try:
-                with open("credentials.txt", "r") as credentials:
-                    for line in credentials:
-                        line = line.split(",")
-                        if line[1] == username and line[3] == password:
-                            return True
-                    return False
-            except FileNotFoundError:
-                print("You need to Register first or amend Line 71 to if True:")
-                return False
-
-
-class SignupPage(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
-
-        tk.Tk.__init__(self, *args, **kwargs)
-
-        main_frame = tk.Frame(self, bg="#3F6BAA", height=150, width=250)
-        # pack_propagate prevents the window resizing to match the widgets
-        main_frame.pack_propagate(0)
-        main_frame.pack(fill="both", expand="true")
-
-        self.geometry("250x150")
-        self.resizable(0, 0)
-
-        self.title("Registration")
-
-        text_styles = {"font": ("Verdana", 10),
-                       "background": "#3F6BAA",
-                       "foreground": "#E1FFFF"}
-
-        label_user = tk.Label(main_frame, text_styles, text="New Username:")
-        label_user.grid(row=1, column=0)
-
-        label_pw = tk.Label(main_frame, text_styles, text="New Password:")
-        label_pw.grid(row=2, column=0)
-
-        entry_user = ttk.Entry(main_frame, width=20, cursor="xterm")
-        entry_user.grid(row=1, column=1)
-
-        entry_pw = ttk.Entry(main_frame, width=20, cursor="xterm", show="*")
-        entry_pw.grid(row=2, column=1)
-
-        button = ttk.Button(main_frame, text="Create Account", command=lambda: signup())
-        button.grid(row=4, column=1)
-
-        def signup():
-            # Creates a text file with the Username and password
-            user = entry_user.get()
-            pw = entry_pw.get()
-            validation = validate_user(user)
-            if not validation:
-                tk.messagebox.showerror("Information", "That Username already exists")
-            else:
-                if len(pw) > 3:
-                    credentials = open("credentials.txt", "a")
-                    credentials.write(f"Username,{user},Password,{pw},\n")
-                    credentials.close()
-                    tk.messagebox.showinfo("Information", "Your account details have been stored.")
-                    SignupPage.destroy(self)
-
-                else:
-                    tk.messagebox.showerror("Information", "Your password needs to be longer than 3 values.")
-
-        def validate_user(username):
-            # Checks the text file for a username/password combination.
-            try:
-                with open("credentials.txt", "r") as credentials:
-                    for line in credentials:
-                        line = line.split(",")
-                        if line[1] == username:
-                            return False
-                return True
-            except FileNotFoundError:
-                return True
-
-class MenuBar(tk.Menu):
-    def __init__(self, parent):
-        tk.Menu.__init__(self, parent)
-        # Define a bold font for the menu items
-        bold_font = ('Arial', 10, 'bold')
-    
-        menu_dashboard = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="DASHBOARD", menu=menu_dashboard)
-        menu_dashboard.add_command(label="DASHBOARD", command=lambda: parent.show_frame(Dashboard), font=bold_font)
-
-        menu_sale = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="SALE", menu=menu_sale)
-        menu_sale.add_command(label="SALE ORDER", command=lambda: parent.show_frame(SaleOrder), font=bold_font)
-
-        menu_purchase = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="PURCHASE", menu=menu_purchase)
-        menu_purchase.add_command(label="PURCHASE ORDER", command=lambda: parent.show_frame(PurchaseOrder), font=bold_font)
-        
-        menu_file = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="PRODUCT", menu=menu_file)
-        menu_file.add_command(label="LIST OF PRODUCT", command=lambda: parent.show_frame(Productlist), font=bold_font)
-
-
-        menu_contact = tk.Menu(self, tearoff=0)
-        self.add_cascade(label="CONTACT", menu=menu_contact)
-        menu_contact.add_command(label="LIST OF CUSTOMER", command=lambda: parent.show_frame(Customer), font=bold_font)
-
-
-
-class MyApp(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
-
-        tk.Tk.__init__(self, *args, **kwargs)
-        main_frame = tk.Frame(self, bg="#FFF0F5", height=800, width=1900)
-        main_frame.pack_propagate(0)
-        main_frame.pack(fill="both", expand="true")
-        main_frame.grid_rowconfigure(0, weight=1)
-        main_frame.grid_columnconfigure(0, weight=1)
-        
-        self.frames = {}
-        pages = (Dashboard, SaleOrder, PurchaseOrder,Productlist, Customer)
-        for F in pages:
-            frame = F(main_frame, self)
-            self.frames[F] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
-        self.show_frame(Dashboard)
-        menubar = MenuBar(self)
-        tk.Tk.config(self, menu=menubar)
-
-    def show_frame(self, name):
-        frame = self.frames[name]
-        frame.tkraise()
-
-    def Quit_application(self):
-        self.destroy()
 
 
 class GUI(tk.Frame):
@@ -1001,7 +810,7 @@ class Dashboard(GUI):
 
 top = LoginPage()
 top.title("Shop management - Login Page")
-root = MyApp()
+root = Application()
 root.withdraw()
 root.title("Shop management")
 

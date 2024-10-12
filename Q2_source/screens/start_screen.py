@@ -1,6 +1,6 @@
 from screens.base_screen import BaseScreen
-from settings import SCREEN_HEIGHT, SCREEN_WIDTH
 from widgets.button import ExitButton, StartButton
+from settings import SCREEN_HEIGHT, SCREEN_WIDTH
 
 class StartScreen(BaseScreen):
     def __init__(self, onStart, onExit):

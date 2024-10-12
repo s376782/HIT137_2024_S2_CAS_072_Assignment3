@@ -1,5 +1,5 @@
 import pygame
-from widgets.itembox_tile import ItemBoxTile, ItemType_Health, ItemType_Grenade, ItemType_Ammo
+from widgets.itembox_tile import ItemBoxTile
 from widgets.decoration_tile import DecorationTile
 from widgets.exit_tile import ExitTile
 from widgets.water_tile import WaterTile
@@ -17,9 +17,11 @@ class TileManager:
         self.exit_group = pygame.sprite.Group()
 
     def create_tile(self, tileId, x, y) -> (Tile | None):
+        tile = None
+
         if tileId < 0:
-            return None
-        if tileId < 9:
+            pass
+        elif tileId < 9:
             tile = Tile(tileId, x, y)
             self.wall_group.add(tile)
         elif tileId < 11:
@@ -29,24 +31,24 @@ class TileManager:
             tile = DecorationTile(tileId, x, y)
             self.decoration_group.add(tile)
         elif tileId == 15: # create player
-            self.player = tile = Player(x, y)
-            #self.health_bar = HealthBar(10, 10, self.player.health, self.player.health)
+            self.player = tile = Player(tileId, x, y)
         elif tileId == 16: # create enemy
-            tile = Enemy(x, y)
+            tile = Enemy(tileId, x, y)
             self.enemy_group.add(tile)
         elif tileId == 17: # create ammo box
-            tile = ItemBoxTile(ItemType_Ammo, tileId, x, y)
+            tile = ItemBoxTile.create_ammo_box(tileId, x, y)
             self.item_box_group.add(tile)
         elif tileId == 18: # create grenade box
-            tile = ItemBoxTile(ItemType_Grenade, tileId, x, y)
+            tile = ItemBoxTile.create_grenade_box(tileId, x, y)
             self.item_box_group.add(tile)
         elif tileId == 19: # create health box
-            tile = ItemBoxTile(ItemType_Health, tileId, x, y)
+            tile = ItemBoxTile.create_health_box(tileId, x, y)
             self.item_box_group.add(tile)
         elif tileId == 20: #create exit
             tile = ExitTile(tileId, x, y)
             self.exit_group.add(tile)
-        if tile:
+
+        if tile is not None:
             self.tile_group.add(tile)
-            return tile
-        raise ValueError()
+
+        return tile

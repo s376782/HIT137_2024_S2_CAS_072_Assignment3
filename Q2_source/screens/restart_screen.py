@@ -1,6 +1,6 @@
 from screens.base_screen import BaseScreen
-from settings import SCREEN_HEIGHT, SCREEN_WIDTH
 from widgets.button import RestartButton
+from settings import SCREEN_HEIGHT, SCREEN_WIDTH
 
 class RestartScreen(BaseScreen):
 	def __init__(self, onRestart):

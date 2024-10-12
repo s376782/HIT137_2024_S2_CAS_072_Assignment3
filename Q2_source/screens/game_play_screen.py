@@ -1,14 +1,14 @@
-import pygame
 import csv
+import pygame
 
 from typing import List, override
-
 from pygame.event import Event
-from contracts.screen_interfaces import IPlayerScreen
-from widgets.grenade import Grenade
+from pygame.sprite import Group
+
 from screens.base_screen import BaseScreen
-from widgets.tile import IRollScreen
 from screens.tile_manager import TileManager
+from contracts.screen_interfaces import IPlayScreen
+from widgets.grenade import Grenade
 from widgets.health_bar import HealthBar
 from settings import SCREEN_HEIGHT, TILE_SIZE
 
@@ -17,14 +17,13 @@ pine2_img = pygame.image.load('img/Background/pine2.png').convert_alpha()
 mountain_img = pygame.image.load('img/Background/mountain.png').convert_alpha()
 sky_img = pygame.image.load('img/Background/sky_cloud.png').convert_alpha()
 
-class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
+class GamePlayScreen(BaseScreen, IPlayScreen):
     def __init__(self, onPlayerDie):
         super().__init__()
         self.sprites.add(
             HealthBar(10, 10)
         )
-        
-        self.tile_manager = TileManager()
+
         self.grenade_group = pygame.sprite.Group()
         self.explosion_group = pygame.sprite.Group()
         self.bullet_group = pygame.sprite.Group()
@@ -39,10 +38,38 @@ class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
     @override
     def get_screen_scroll(self) -> int:
         return self.screen_scroll
-    
+
+    @override
+    def get_bg_scroll(self) -> int:
+        return self.bg_scroll
+
+    @override
+    def get_level_length(self) -> int:
+        return self.level_length
+
     @override
     def get_player(self):
         return self.player
+
+    @override
+    def get_obstacle_group(self) -> Group:
+        return self.tile_manager.wall_group
+
+    @override
+    def get_enemy_group(self) -> Group:
+        return self.tile_manager.enemy_group
+
+    @override
+    def get_water_group(self) -> Group:
+        return self.tile_manager.water_group
+
+    @override
+    def get_exit_group(self) -> Group:
+        return self.tile_manager.exit_group
+    
+    @override
+    def get_bullet_group(self) -> Group:
+        return self.bullet_group
 
     def load_level(self, level: int):
         world_data = []
@@ -58,6 +85,7 @@ class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
 
     def process_data(self, data: List[List[int]]):
         self.level_length = len(data[0])
+        self.tile_manager = TileManager()
         #iterate through each value in level data file
         for y, row in enumerate(data):
             for x, tile in enumerate(row):
@@ -68,15 +96,17 @@ class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
 
     @override
     def update(self):
+        super().update()
+
+        self.tile_manager.tile_group.update(self)
         self.grenade_group.update(self)
         self.explosion_group.update(self)
         self.bullet_group.update(self)
-        self.tile_manager.tile_group.update(self)
 
         if self.player.alive:
             #shoot bullets
             if self.shoot:
-                self.player.shoot()
+                self.player.shoot(self)
             #throw grenades
             elif self.grenade and self.grenade_thrown == False and self.player.grenades > 0:
                 grenade = Grenade(self.player.rect.centerx + (0.5 * self.player.rect.size[0] * self.player.direction),
@@ -92,7 +122,7 @@ class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
                 self.player.update_action(1) #1: run
             else:
                 self.player.update_action(0) #0: idle
-            self.screen_scroll, self.level_complete = self.player.move(self.moving_left, self.moving_right)
+            self.screen_scroll, self.level_complete = self.player.move(self, self.moving_left, self.moving_right)
             self.bg_scroll -= self.screen_scroll
             #check if player has completed the level
             if self.level_complete:
@@ -114,7 +144,7 @@ class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
             screen.blit(mountain_img, ((x * width) - self.bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
             screen.blit(pine1_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
             screen.blit(pine2_img, ((x * width) - self.bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height()))
-    
+
     @override
     def draw_sprites(self, screen: pygame.Surface):
         super().draw_sprites(screen)
@@ -153,7 +183,7 @@ class GamePlayScreen(BaseScreen, IRollScreen, IPlayerScreen):
                     self.player.jump = True
                     #jump_fx.play()
 
-            #keyboard button released
+            # keyboard button released
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_a:
                     self.moving_left = False

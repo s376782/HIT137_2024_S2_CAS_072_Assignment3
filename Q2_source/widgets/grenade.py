@@ -1,8 +1,7 @@
-from typing import Any, override
 import pygame
-
-from contracts.screen_interfaces import IPlayScreen, IRollScreen
+from typing import override
 from widgets.explosion import Explosion
+from contracts.screen_interfaces import IPlayScreen
 from settings import GRAVITY, TILE_SIZE
 
 grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
@@ -24,8 +23,10 @@ class Grenade(pygame.sprite.Sprite):
 
     @override
     def update(self, *args, **kwargs):
+        super().update(*args, **kwargs)
+
         screen = args[0]
-        if screen and isinstance(screen, IRollScreen) and isinstance(screen, IPlayScreen):
+        if screen and isinstance(screen, IPlayScreen):
             self.vel_y += GRAVITY
             dx = self.direction * self.speed
             dy = self.vel_y

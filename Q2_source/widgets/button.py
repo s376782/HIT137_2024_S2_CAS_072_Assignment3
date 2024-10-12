@@ -12,7 +12,7 @@ class Button(pygame.sprite.Sprite):
 
     @override
     def update(self, *args, **kwargs):
-        super().update(args, kwargs)
+        super().update(*args, **kwargs)
 
         pos = pygame.mouse.get_pos() # get mouse position
 

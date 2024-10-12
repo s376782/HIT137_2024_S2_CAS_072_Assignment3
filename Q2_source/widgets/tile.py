@@ -1,6 +1,6 @@
 import pygame
 from typing import override
-from contracts.screen_interfaces import IRollScreen
+from contracts.screen_interfaces import IScrollScreen
 from settings import TILE_SIZE, TILE_TYPES
 
 img_list = []
@@ -18,8 +18,8 @@ class Tile(pygame.sprite.Sprite):
     
     @override
     def update(self, *args, **kwargs):
-        super().update(args, kwargs)
+        super().update(*args, **kwargs)
 
         screen = args[0]
-        if screen and isinstance(screen, IRollScreen):
+        if screen and isinstance(screen, IScrollScreen):
             self.rect.x += screen.get_screen_scroll()

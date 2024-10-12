@@ -1,11 +1,10 @@
+import pygame
 from widgets.itembox_tile import ItemBoxTile, ItemType_Health, ItemType_Grenade, ItemType_Ammo
 from widgets.decoration_tile import DecorationTile
 from widgets.exit_tile import ExitTile
 from widgets.water_tile import WaterTile
-from widgets.soldier import Enemy, Player, Soldier
+from widgets.soldier import Enemy, Player
 from widgets.tile import Tile
-
-import pygame
 
 class TileManager:
     def __init__(self):
@@ -17,10 +16,9 @@ class TileManager:
         self.item_box_group = pygame.sprite.Group()
         self.exit_group = pygame.sprite.Group()
 
-    def create_tile(self, tileId, x, y) -> Tile:
+    def create_tile(self, tileId, x, y) -> (Tile | None):
         if tileId < 0:
-            return
-
+            return None
         if tileId < 9:
             tile = Tile(tileId, x, y)
             self.wall_group.add(tile)

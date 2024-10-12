@@ -18,6 +18,8 @@ class Tile(pygame.sprite.Sprite):
     
     @override
     def update(self, *args, **kwargs):
+        super().update(args, kwargs)
+
         screen = args[0]
         if screen and isinstance(screen, IRollScreen):
             self.rect.x += screen.get_screen_scroll()

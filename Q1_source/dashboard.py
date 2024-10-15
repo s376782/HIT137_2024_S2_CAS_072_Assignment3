@@ -2,10 +2,10 @@
 # import matplotlib.pyplot as plt
 
 # # Read the existing Excel data into a pandas DataFrame
-# df1 = pd.read_excel("Sale Order.xlsx")
-# df2 = pd.read_excel("Purchase order.xlsx")    
-# df3 = pd.read_excel("Product.xlsx")
-# df4 = pd.read_excel("Customer.xlsx")
+# df1 = pd.read_excel("data/SaleOrder.xlsx")
+# df2 = pd.read_excel("data/PurchaseOrder.xlsx")    
+# df3 = pd.read_excel("data/Product.xlsx")
+# df4 = pd.read_excel("data/Customer.xlsx")
 
 
 # # Get unique customer names
@@ -57,10 +57,10 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import tkinter as tk
 
 # Read the existing Excel data into a pandas DataFrame
-df1 = pd.read_excel("Sale Order.xlsx")
-df2 = pd.read_excel("Purchase order.xlsx")
-df3 = pd.read_excel("Product.xlsx")
-df4 = pd.read_excel("Customer.xlsx")
+df1 = pd.read_excel("data/SaleOrder.xlsx")
+df2 = pd.read_excel("data/PurchaseOrder.xlsx")
+df3 = pd.read_excel("data/Product.xlsx")
+df4 = pd.read_excel("data/Customer.xlsx")
 
 # Get unique customer names and grouped totals
 X1 = df1['Customer name'].unique()

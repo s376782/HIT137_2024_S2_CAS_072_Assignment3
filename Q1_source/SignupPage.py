@@ -3,9 +3,7 @@ from tkinter import ttk
 
 
 class SignupPage(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
-
+    def __init__(self, screenName: str|None = None):
         tk.Tk.__init__(self, *args, **kwargs)
 
         main_frame = tk.Frame(self, bg="#3F6BAA", height=150, width=250)

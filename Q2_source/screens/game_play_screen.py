@@ -8,7 +8,7 @@ from pygame.sprite import Group
 from screens.base_screen import BaseScreen
 from screens.tile_manager import TileManager
 from contracts.screen_interfaces import IPlayScreen
-from widgets.grenade import Grenade
+from widgets.bomb import Bomb
 from widgets.health_bar import HealthBar
 from settings import SCREEN_HEIGHT, TILE_SIZE
 
@@ -24,15 +24,15 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
             HealthBar(10, 10)
         )
 
-        self.grenade_group = pygame.sprite.Group()
+        self.bomb_group = pygame.sprite.Group()
         self.explosion_group = pygame.sprite.Group()
-        self.bullet_group = pygame.sprite.Group()
+        self.arrow_group = pygame.sprite.Group()
         self.bg_scroll = 0
         self.screen_scroll = 0
 
         self.shoot = False
-        self.grenade = False 
-        self.grenade_thrown = False
+        self.bomb = False 
+        self.bomb_thrown = False
         self.moving_left = self.moving_right = False
 
     @override
@@ -68,8 +68,8 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
         return self.tile_manager.exit_group
     
     @override
-    def get_bullet_group(self) -> Group:
-        return self.bullet_group
+    def get_arrow_group(self) -> Group:
+        return self.arrow_group
 
     def load_level(self, level: int):
         world_data = []
@@ -99,30 +99,30 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
         super().update()
 
         self.tile_manager.tile_group.update(self)
-        self.grenade_group.update(self)
+        self.bomb_group.update(self)
         self.explosion_group.update(self)
-        self.bullet_group.update(self)
+        self.arrow_group.update(self)
 
         if self.player.alive:
             #shoot bullets
             if self.shoot:
                 self.player.shoot(self)
             #throw grenades
-            elif self.grenade and self.grenade_thrown == False and self.player.grenades > 0:
-                grenade = Grenade(self.player.rect.centerx + (0.5 * self.player.rect.size[0] * self.player.direction),
+            elif self.bomb and self.bomb_thrown == False and self.player.bombs > 0:
+                bomb = Bomb(self.player.rect.centerx + (0.5 * self.player.rect.size[0] * self.player.direction),
                                   self.player.rect.top,
                                   self.player.direction)
-                self.grenade_group.add(grenade)
+                self.bomb_group.add(bomb)
                 #reduce grenades
-                self.player.grenades -= 1
-                self.grenade_thrown = True
+                self.player.bombs -= 1
+                self.bomb_thrown = True
             if self.player.in_air:
                 self.player.update_action(2)#2: jump
             elif self.moving_left or self.moving_right:
                 self.player.update_action(1) #1: run
             else:
                 self.player.update_action(0) #0: idle
-            self.screen_scroll, self.level_complete = self.player.move(self, self.moving_left, self.moving_right)
+            self.screen_scroll, self.level_complete = self.player.movement(self, self.moving_left, self.moving_right)
             self.bg_scroll -= self.screen_scroll
             #check if player has completed the level
             if self.level_complete:
@@ -148,8 +148,8 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
     @override
     def draw_sprites(self, screen: pygame.Surface):
         super().draw_sprites(screen)
-        self.bullet_group.draw(screen)
-        self.grenade_group.draw(screen)
+        self.arrow_group.draw(screen)
+        self.bomb_group.draw(screen)
         self.explosion_group.draw(screen)
         self.tile_manager.tile_group.draw(screen)
 
@@ -157,40 +157,40 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
     def draw(self, screen: pygame.Surface):
         super().draw(screen)
 
-        # #show ammo
-        # draw_text('AMMO: ', font, WHITE, 10, 35)
-        # for x in range(player.ammo):
-        #     screen.blit(bullet_img, (90 + (x * 10), 40))
-        # #show grenades
-        # draw_text('GRENADES: ', font, WHITE, 10, 60)
-        # for x in range(player.grenades):
-        #     screen.blit(grenade_img, (135 + (x * 15), 60))
+        # #show arrow
+        # draw_text('ARROW: ', font, WHITE, 10, 35)
+        # for x in range(player.arrow):
+        #     screen.blit(arrow_img, (90 + (x * 10), 40))
+        # #show bombs
+        # draw_text('BOMBS: ', font, WHITE, 10, 60)
+        # for x in range(player.bombs):
+        #     screen.blit(bomb_img, (135 + (x * 15), 60))
 
     @override
     def handle_events(self, events: List[Event]):
         for event in events:
             # keyboard presses
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_a:
+                if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                     self.moving_left = True
-                if event.key == pygame.K_d:
+                if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                     self.moving_right = True
                 if event.key == pygame.K_SPACE:
                     self.shoot = True
                 if event.key == pygame.K_q:
-                    self.grenade = True
+                    self.bomb = True
                 if event.key == pygame.K_w and self.player.alive:
                     self.player.jump = True
                     #jump_fx.play()
 
             # keyboard button released
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_a:
+                if event.key == pygame.K_a or event.key == pygame.K_LEFT:
                     self.moving_left = False
-                if event.key == pygame.K_d:
+                if event.key == pygame.K_d or event.key == pygame.K_RIGHT:
                     self.moving_right = False
                 if event.key == pygame.K_SPACE:
                     self.shoot = False
                 if event.key == pygame.K_q:
-                    self.grenade = False
-                    self.grenade_thrown = False
+                    self.bomb = False
+                    self.bomb_thrown = False

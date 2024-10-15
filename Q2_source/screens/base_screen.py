@@ -22,5 +22,6 @@ class BaseScreen:
 	def draw(self, screen: pygame.Surface):
 		self.draw_background(screen)
 		self.draw_sprites(screen)
+		
 
 

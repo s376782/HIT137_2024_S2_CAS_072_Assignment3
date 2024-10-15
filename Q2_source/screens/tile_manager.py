@@ -3,7 +3,7 @@ from widgets.itembox_tile import ItemBoxTile
 from widgets.decoration_tile import DecorationTile
 from widgets.exit_tile import ExitTile
 from widgets.water_tile import WaterTile
-from widgets.soldier import Enemy, Player
+from widgets.character import Enemy, Character
 from widgets.tile import Tile
 
 class TileManager:
@@ -21,25 +21,25 @@ class TileManager:
 
         if tileId < 0:
             pass
-        elif tileId < 9:
+        elif tileId >= 0 and tileId < 9:
             tile = Tile(tileId, x, y)
             self.wall_group.add(tile)
-        elif tileId < 11:
+        elif tileId >= 9 and tileId < 11:
             tile = WaterTile(tileId, x, y)
             self.water_group.add(tile)
-        elif tileId < 15:
+        elif tileId >= 11 and tileId < 15:
             tile = DecorationTile(tileId, x, y)
             self.decoration_group.add(tile)
         elif tileId == 15: # create player
-            self.player = tile = Player(tileId, x, y)
+            self.player = tile = Character(tileId, x, y)
         elif tileId == 16: # create enemy
             tile = Enemy(tileId, x, y)
             self.enemy_group.add(tile)
-        elif tileId == 17: # create ammo box
-            tile = ItemBoxTile.create_ammo_box(tileId, x, y)
+        elif tileId == 17: # create arrow box
+            tile = ItemBoxTile.create_arrow_box(tileId, x, y)
             self.item_box_group.add(tile)
-        elif tileId == 18: # create grenade box
-            tile = ItemBoxTile.create_grenade_box(tileId, x, y)
+        elif tileId == 18: # create bomb box
+            tile = ItemBoxTile.create_bomb_box(tileId, x, y)
             self.item_box_group.add(tile)
         elif tileId == 19: # create health box
             tile = ItemBoxTile.create_health_box(tileId, x, y)

@@ -5,20 +5,20 @@ from contracts.screen_interfaces import IPlayScreen
 
 class ItemBoxTile(Tile):
     ItemType_Health = 'Health'
-    ItemType_Ammo = 'Ammo'
-    ItemType_Grenade = 'Grenade'
+    ItemType_Arrow = 'Arrow'
+    ItemType_Bomb = 'Bomb'
 
     @staticmethod
     def create_health_box(tile, x, y):
         return ItemBoxTile(ItemBoxTile.ItemType_Health, tile, x, y)
 
     @staticmethod
-    def create_ammo_box(tile, x, y):
-        return ItemBoxTile(ItemBoxTile.ItemType_Ammo, tile, x, y)
+    def create_arrow_box(tile, x, y):
+        return ItemBoxTile(ItemBoxTile.ItemType_Arrow, tile, x, y)
 
     @staticmethod
-    def create_grenade_box(tile, x, y):
-        return ItemBoxTile(ItemBoxTile.ItemType_Grenade, tile, x, y)
+    def create_bomb_box(tile, x, y):
+        return ItemBoxTile(ItemBoxTile.ItemType_Bomb, tile, x, y)
 
     def __init__(self, item_type, tile, x, y):
         super().__init__(tile, x, y)
@@ -38,10 +38,10 @@ class ItemBoxTile(Tile):
                     player.health += 25
                     if player.health > player.max_health:
                         player.health = player.max_health
-                elif self.item_type == ItemBoxTile.ItemType_Ammo:
-                    player.ammo += 15
-                elif self.item_type == ItemBoxTile.ItemType_Grenade:
-                    player.grenades += 3
+                elif self.item_type == ItemBoxTile.ItemType_Arrow:
+                    player.arrow += 15
+                elif self.item_type == ItemBoxTile.ItemType_Bomb:
+                    player.bombs += 3
 
                 #delete the item box
                 self.kill()

@@ -29,5 +29,5 @@ class IPlayScreen(IScrollScreen):
     def get_exit_group(self) -> pygame.sprite.Group:
         raise NotImplementedError
     
-    def get_bullet_group(self) -> pygame.sprite.Group:
+    def get_arrow_group(self) -> pygame.sprite.Group:
         raise NotImplementedError

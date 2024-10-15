@@ -4,17 +4,17 @@ from widgets.explosion import Explosion
 from contracts.screen_interfaces import IPlayScreen
 from settings import GRAVITY, TILE_SIZE
 
-grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
-grenade_fx = pygame.mixer.Sound('audio/grenade.wav')
-grenade_fx.set_volume(0.05)
+bomb_img = pygame.image.load('img/icons/bomb.png').convert_alpha()
+bomb_fx = pygame.mixer.Sound('audio/bomb.wav')
+bomb_fx.set_volume(0.05)
 
-class Grenade(pygame.sprite.Sprite):
+class Bomb(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         pygame.sprite.Sprite.__init__(self)
         self.timer = 100
         self.vel_y = -11
         self.speed = 7
-        self.image = grenade_img
+        self.image = bomb_img
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.width = self.image.get_width()
@@ -34,20 +34,22 @@ class Grenade(pygame.sprite.Sprite):
             #check for collision with level
             for tile in screen.get_obstacle_group():
                 #check collision with walls
-                if tile.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                new_rect_x = pygame.Rect(self.rect.x + dx, self.rect.y, self.width, self.height)
+                if tile.rect.colliderect(new_rect_x):
                     self.direction *= -1
                     dx = self.direction * self.speed
                 #check for collision in the y direction
-                if tile.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                new_rect_y = pygame.Rect(self.rect.x, self.rect.y + dy, self.width, self.height)
+                if tile.rect.colliderect(new_rect_y):
                     self.speed = 0
                     #check if below the ground, i.e. thrown up
                     if self.vel_y < 0:
                         self.vel_y = 0
-                        dy = tile[1].bottom - self.rect.top
+                        dy = tile.rect.bottom - self.rect.top
                     #check if above the ground, i.e. falling
                     elif self.vel_y >= 0:
                         self.vel_y = 0
-                        dy = tile[1].top - self.rect.bottom
+                        dy = tile.rect.top - self.rect.bottom
 
             #update grenade position
             self.rect.x += dx + screen.get_screen_scroll()
@@ -57,7 +59,7 @@ class Grenade(pygame.sprite.Sprite):
             self.timer -= 1
             if self.timer <= 0:
                 self.kill()
-                grenade_fx.play()
+                bomb_fx.play()
                 explosion = Explosion(self.rect.x, self.rect.y, 0.5)
                 screen.explosion_group.add(explosion)
                 #do damage to anyone that is nearby

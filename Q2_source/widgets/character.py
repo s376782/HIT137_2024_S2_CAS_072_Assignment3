@@ -5,7 +5,8 @@ import random
 
 from contracts.screen_interfaces import IPlayScreen, IPlayer
 from widgets.tile import Tile
-from widgets.bullet import Bullet
+from widgets.decoration_tile import DecorationTile
+from widgets.arrow import Arrow
 from settings import GRAVITY, MAX_HEALTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCROLL_THRESH, TILE_SIZE
 
 jump_fx = pygame.mixer.Sound('audio/jump.wav')
@@ -13,17 +14,18 @@ jump_fx.set_volume(0.05)
 shot_fx = pygame.mixer.Sound('audio/shot.wav')
 shot_fx.set_volume(0.05)
 
-class Soldier(Tile):
-    def __init__(self, tile, char_type, x, y, scale, speed, ammo, grenades):
+class Character(Tile):
+    def __init__(self, tile, char_type, x, y, scale, speed, arrow, bombs):
         super().__init__(tile, x, y)
         self.alive = True
         self.char_type = char_type
         self.speed = speed
-        self.ammo = ammo
-        self.start_ammo = ammo
+        self.arrow = arrow
+        self.start_arrow = arrow
         self.shoot_cooldown = 0
-        self.grenades = grenades
-        self.health = MAX_HEALTH
+        self.bombs = bombs
+        self.health = 100
+        self.max_health = self.health
         self.direction = 1
         self.vel_y = 0
         self.jump = False
@@ -66,7 +68,7 @@ class Soldier(Tile):
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
 
-    def move(self, screen: IPlayScreen, moving_left: bool, moving_right: bool):
+    def movement(self, screen: IPlayScreen, moving_left: bool, moving_right: bool):
         #reset movement variables
         screen_scroll = 0
         dx = 0
@@ -85,6 +87,7 @@ class Soldier(Tile):
         #jump
         if self.jump == True and self.in_air == False:
             self.vel_y = -11
+            dx += self.direction * 2 * TILE_SIZE
             self.jump = False
             self.in_air = True
 
@@ -96,13 +99,18 @@ class Soldier(Tile):
 
         #check for collision
         for tile in screen.get_obstacle_group():
+            # check if this tile is the current enemy itself and skip collision check
+            if tile == self or isinstance(tile, DecorationTile):
+                continue
             #check collision in the x direction
             if tile.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
                 #if the ai has hit a wall then make it turn around
                 if self.char_type == 'enemy':
-                    self.direction *= -1
-                    self.move_counter = 0
+                    # only reverse direction after moving a certain distance or time
+                    if self.move_counter > TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter = 0      # reset move counter after reversing
             #check for collision in the y direction
             if tile.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
                 #check if below the ground, i.e. jumping
@@ -150,12 +158,12 @@ class Soldier(Tile):
         return screen_scroll, level_complete
 
     def shoot(self, screen: IPlayScreen):
-        if self.shoot_cooldown == 0 and self.ammo > 0:
+        if self.shoot_cooldown == 0 and self.arrow > 0:
             self.shoot_cooldown = 20
-            bullet = Bullet(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, self.direction)
-            screen.get_bullet_group().add(bullet)
-            #reduce ammo
-            self.ammo -= 1
+            bullet = Arrow(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, self.direction)
+            screen.get_arrow_group().add(bullet)
+            #reduce arrow
+            self.arrow -= 1
             shot_fx.play()
 
     def update_animation(self):
@@ -189,11 +197,12 @@ class Soldier(Tile):
             self.health = 0
             self.speed = 0
             self.alive = False
-            self.update_action(3)
+            self.update_action(3)   # Death action
 
-class Enemy(Soldier):
+
+class Enemy(Character):
     def __init__(self, tile, x, y):
-        super().__init__(tile, 'enemy', x, y, 1.65, 2, 20, 0)
+        super().__init__(tile, 'enemy', x, y, 0.5, 5, 20, 0)
         #ai specific variables
         self.move_counter = 0
         self.vision = pygame.Rect(0, 0, 150, 20)
@@ -220,7 +229,7 @@ class Enemy(Soldier):
                     else:
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
-                    self.move(screen, ai_moving_left, ai_moving_right)
+                    self.movement(screen, ai_moving_left, ai_moving_right)
                     self.update_action(1)#1: run
                     self.move_counter += 1
                     #update ai vision as the enemy moves
@@ -244,6 +253,8 @@ class Enemy(Soldier):
             self.ai(screen)
         super().update(*args, **kwargs)
 
-class Player(Soldier, IPlayer):
+class Character(Character, IPlayer):
     def __init__(self, tile, x, y):
-        super().__init__(tile, 'player', x, y, 1.65, 5, 20, 5)
+        super().__init__(tile, 'player', x, y, 1.5, 7, 20, 5)
+
+

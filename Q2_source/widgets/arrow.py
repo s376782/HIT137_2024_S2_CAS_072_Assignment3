@@ -3,13 +3,13 @@ from typing import override
 from contracts.screen_interfaces import IPlayScreen
 from settings import SCREEN_WIDTH
 
-bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
+arrow_img = pygame.image.load('img/icons/arrow.png').convert_alpha()
 
-class Bullet(pygame.sprite.Sprite):
+class Arrow(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         super().__init__()
         self.speed = 10
-        self.image = bullet_img
+        self.image = arrow_img
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.direction = direction

@@ -6,7 +6,7 @@ class Explosion(pygame.sprite.Sprite):
     def __init__(self, x, y, scale):
         super().__init__()
         self.images = []
-        for num in range(1, 6):
+        for num in range(1, 9):
             img = pygame.image.load(f'img/explosion/exp{num}.png').convert_alpha()
             img = pygame.transform.scale(img, (int(img.get_width() * scale), int(img.get_height() * scale)))
             self.images.append(img)

@@ -5,7 +5,7 @@ class ILoginCallback:
     def onLoginSuccess(self, username: str):
         raise NotImplementedError
 
-    def onSignup(self):
+    def onGoToSignup(self):
         raise NotImplementedError
 
     def onCancel(self):
@@ -60,8 +60,7 @@ class LoginWindow(Tk):
 
     def __signup(self):
         self.cancel = False
-        self.destroy()
-        self.__callback.onSignup()    
+        self.__callback.onGoToSignup()    
 
     def __login(self):
         username = self.entry_user.get()
@@ -72,7 +71,6 @@ class LoginWindow(Tk):
         if validation:
             messagebox.showinfo("Login Successful", f'Welcome {username}')
             self.cancel = False
-            self.destroy()
             self.__callback.onLoginSuccess(username)
         else:
             messagebox.showerror("Information", "The Username or Password you have entered are incorrect ")

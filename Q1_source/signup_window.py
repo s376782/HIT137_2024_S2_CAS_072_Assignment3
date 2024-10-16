@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 
 class ISignupCallback:
-    def onSignup(self):
+    def on_signup(self):
         raise NotImplementedError
 
 class SignupWindow(tk.Tk):
@@ -53,7 +53,7 @@ class SignupWindow(tk.Tk):
                 credentials.close()
                 tk.messagebox.showinfo("Information", "Your account details have been stored.")
                 self.destroy()
-                self.__callback.onSignup()
+                self.__callback.on_signup()
             else:
                 tk.messagebox.showerror("Information", "Your password needs to be longer than 3 values.")
 

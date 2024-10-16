@@ -1,14 +1,10 @@
 from tkinter import Tk, Frame, Label, messagebox, ttk
-from typing import override
 
 class ILoginCallback:
-    def onLoginSuccess(self, username: str):
+    def on_login_success(self, username: str):
         raise NotImplementedError
 
-    def onGoToSignup(self):
-        raise NotImplementedError
-
-    def onCancel(self):
+    def on_open_signup(self):
         raise NotImplementedError
 
 class LoginWindow(Tk):
@@ -52,15 +48,8 @@ class LoginWindow(Tk):
         signup_btn = ttk.Button(frame_login, text="Register", command=self.__signup)
         signup_btn.place(rely=0.70, relx=0.75)
 
-    @override
-    def destroy(self):
-        super().destroy()
-        if self.cancel:
-            self.__callback.onCancel()
-
     def __signup(self):
-        self.cancel = False
-        self.__callback.onGoToSignup()    
+        self.__callback.on_open_signup()    
 
     def __login(self):
         username = self.entry_user.get()
@@ -70,13 +59,11 @@ class LoginWindow(Tk):
         validation = self.__validate(username, password)
         if validation:
             messagebox.showinfo("Login Successful", f'Welcome {username}')
-            self.cancel = False
-            self.__callback.onLoginSuccess(username)
+            self.__callback.on_login_success(username)
         else:
             messagebox.showerror("Information", "The Username or Password you have entered are incorrect ")
 
     def __validate(self, username, password):
-        return True
         # Checks the text file for a username/password combination.
         try:
             with open("credentials.txt", "r") as credentials:

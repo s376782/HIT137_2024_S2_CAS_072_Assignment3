@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 
 
-class SignupPage(tk.Tk):
-    def __init__(self, screenName: str|None = None):
-        tk.Tk.__init__(self, *args, **kwargs)
+class SignupWindow(tk.Tk):
+    def __init__(self, cont):
+        tk.Tk.__init__(self)
 
         main_frame = tk.Frame(self, bg="#3F6BAA", height=150, width=250)
         # pack_propagate prevents the window resizing to match the widgets
@@ -48,7 +48,7 @@ class SignupPage(tk.Tk):
                     credentials.write(f"Username,{user},Password,{pw},\n")
                     credentials.close()
                     tk.messagebox.showinfo("Information", "Your account details have been stored.")
-                    SignupPage.destroy(self)
+                    SignupWindow.destroy(self)
 
                 else:
                     tk.messagebox.showerror("Information", "Your password needs to be longer than 3 values.")

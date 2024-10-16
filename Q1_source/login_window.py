@@ -1,5 +1,4 @@
-from tkinter import Frame, Label, messagebox, ttk
-from tkinter.simpledialog import Dialog
+from tkinter import Tk, Frame, Label, messagebox, ttk
 from typing import override
 
 class ILoginCallback:
@@ -12,15 +11,13 @@ class ILoginCallback:
     def onCancel(self):
         raise NotImplementedError
 
-class LoginDialog(Dialog):
-    def __init__(self, parent, callback: ILoginCallback, title = None):
-        super().__init__(parent, title)
-        self.callback = callback
-        self.cancel = True
+class LoginWindow(Tk):
+    def __init__(self, callback: ILoginCallback):
+        super().__init__()
 
-    @override
-    def body(self, master: Frame):
-        main_frame = Frame(master, bg="#708090", height=431, width=626)
+        self.__callback = callback
+
+        main_frame = Frame(self, bg="#708090") #, height=431, width=626)
         main_frame.pack(fill='both', expand=True)
         
         self.geometry("626x500")  # Sets window size to 626w x 431h pixels
@@ -49,40 +46,39 @@ class LoginDialog(Dialog):
         self.entry_pw = ttk.Entry(frame_login, width=45, cursor="xterm", show="*")
         self.entry_pw.grid(row=2, column=1)
 
-        button = ttk.Button(frame_login, text="Login", command=lambda: self.login)
+        button = ttk.Button(frame_login, text="Login", command=self.__login)
         button.place(rely=0.70, relx=0.50)
 
-        signup_btn = ttk.Button(frame_login, text="Register", command=lambda: self.callback.onSignup)
+        signup_btn = ttk.Button(frame_login, text="Register", command=self.__signup)
         signup_btn.place(rely=0.70, relx=0.75)
-
-    @override
-    def buttonbox(self):
-        pass # override to remove the standard buttons
 
     @override
     def destroy(self):
         super().destroy()
         if self.cancel:
-            self.callback.onCancel()
+            self.__callback.onCancel()
 
-    def signup(self):
+    def __signup(self):
         self.cancel = False
-        self.callback.onSignup()    
+        self.destroy()
+        self.__callback.onSignup()    
 
-    def login(self):
+    def __login(self):
         username = self.entry_user.get()
         password = self.entry_pw.get()
 
         # if your want to run the script as it is set validation = True
-        validation = self.validate(username, password)
+        validation = self.__validate(username, password)
         if validation:
             messagebox.showinfo("Login Successful", f'Welcome {username}')
             self.cancel = False
-            self.callback.onLoginSuccess(username)
+            self.destroy()
+            self.__callback.onLoginSuccess(username)
         else:
             messagebox.showerror("Information", "The Username or Password you have entered are incorrect ")
 
-    def validate(username, password):
+    def __validate(self, username, password):
+        return True
         # Checks the text file for a username/password combination.
         try:
             with open("credentials.txt", "r") as credentials:

@@ -7,7 +7,7 @@ from contracts.screen_interfaces import IPlayScreen, IPlayer
 from widgets.tile import Tile
 from widgets.decoration_tile import DecorationTile
 from widgets.arrow import Arrow
-from settings import GRAVITY, MAX_HEALTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCROLL_THRESH, TILE_SIZE
+from settings import GRAVITY, MAX_HEALTH, RED, SCREEN_HEIGHT, SCREEN_WIDTH, SCROLL_THRESH, TILE_SIZE
 
 jump_fx = pygame.mixer.Sound('audio/jump.wav')
 jump_fx.set_volume(0.05)
@@ -85,7 +85,7 @@ class Character(Tile):
             self.direction = 1
 
         #jump
-        if self.jump == True and self.in_air == False:
+        if self.char_type == 'player' and self.jump == True and self.in_air == False:
             self.vel_y = -11
             dx += self.direction * 2 * TILE_SIZE
             self.jump = False
@@ -100,8 +100,8 @@ class Character(Tile):
         #check for collision
         for tile in screen.get_obstacle_group():
             # check if this tile is the current enemy itself and skip collision check
-            if tile == self or isinstance(tile, DecorationTile):
-                continue
+            # if tile == self or isinstance(tile, DecorationTile):
+            #     continue
             #check collision in the x direction
             if tile.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
                 dx = 0
@@ -201,8 +201,8 @@ class Character(Tile):
 
 
 class Enemy(Character):
-    def __init__(self, tile, x, y):
-        super().__init__(tile, 'enemy', x, y, 0.5, 5, 20, 0)
+    def __init__(self, tile, x, y, scale=0.5, speed=2, arrow=20, bombs=0):
+        super().__init__(tile, 'enemy', x, y, scale, speed, arrow, bombs)
         #ai specific variables
         self.move_counter = 0
         self.vision = pygame.Rect(0, 0, 150, 20)
@@ -253,8 +253,147 @@ class Enemy(Character):
             self.ai(screen)
         super().update(*args, **kwargs)
 
-class Character(Character, IPlayer):
+
+class Player(Character, IPlayer):
     def __init__(self, tile, x, y):
-        super().__init__(tile, 'player', x, y, 1.5, 7, 20, 5)
+        Character.__init__(self, tile, 'player', x, y, 1.5, 7, 20, 5)
+        self.lives = 3
+
+    # def respawn(self):
+    #     self.alive = True
+    #     self.health = self.max_health  # Reset health
+    #     self.rect.x = 100  
+    #     self.rect.y = 100
 
 
+class Boss(Enemy):
+    def __init__(self, tile, x, y, scale=1, speed=1, arrow=30, bombs=0):
+        super().__init__(tile, x, y, scale, speed, arrow, bombs)
+        self.flip = True
+        self.health = 200
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
+        self.vision = pygame.Rect(0, 0, 150, 20)
+
+    @override
+    def ai(self, screen):
+        player = screen.get_player()
+        if self.alive and player.alive:
+            if self.idling == False and random.randint(1, 200) == 1:
+                self.update_action(0)#0: idle
+                self.idling = True
+                self.idling_counter = 50
+
+            if self.vision.colliderect(player.rect):
+                #stop running and face the player
+                self.update_action(0)#0: idle
+                #shoot
+                self.shoot(screen) 
+            else: 
+                if self.idling == False:
+                    if self.direction == 1:
+                        ai_moving_right = True
+                    else:
+                        ai_moving_right = False
+                    ai_moving_left = not ai_moving_right
+                    self.movement(screen, False, False)
+                    self.update_action(1)#1: run
+                    self.move_counter += 1
+                    #update ai vision as the enemy moves
+                    self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)
+
+                    if self.move_counter > TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter *= -1
+                else:
+                    self.idling_counter -= 1
+                    if self.idling_counter <= 0:
+                        self.idling = False
+
+    @override
+    def movement(self, screen: IPlayScreen, moving_left: bool, moving_right: bool):
+        #reset movement variables
+        screen_scroll = 0
+        dx = 0
+        dy = 0
+
+        #assign movement variables if moving left or right
+        if moving_left:
+            self.flip = True
+            self.direction = -1
+        if moving_right:
+            self.flip = False
+            self.direction = 1
+
+        #jump
+        if self.jump == True and self.in_air == False:
+            self.vel_y = -11
+            dx += self.direction * 2 * TILE_SIZE
+            self.jump = False
+            self.in_air = True
+
+        #apply gravity
+        self.vel_y += GRAVITY
+        if self.vel_y > 10:
+            self.vel_y
+        dy += self.vel_y
+
+        #check for collision
+        for tile in screen.get_obstacle_group():
+            # check if this tile is the current enemy itself and skip collision check
+            if tile == self or isinstance(tile, DecorationTile):
+                continue
+            #check collision in the x direction
+            if tile.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
+                dx = 0
+                #if the ai has hit a wall then make it turn around
+                if self.char_type == 'enemy':
+                    # only reverse direction after moving a certain distance or time
+                    if self.move_counter > TILE_SIZE:
+                        self.direction *= -1
+                        self.move_counter = 0      # reset move counter after reversing
+            #check for collision in the y direction
+            if tile.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
+                #check if below the ground, i.e. jumping
+                if self.vel_y < 0:
+                    self.vel_y = 0
+                    dy = tile.rect.bottom - self.rect.top
+                #check if above the ground, i.e. falling
+                elif self.vel_y >= 0:
+                    self.vel_y = 0
+                    self.in_air = False
+                    dy = tile.rect.top - self.rect.bottom
+
+        #check for collision with water
+        if pygame.sprite.spritecollide(self, screen.get_water_group(), False):
+            self.health = 0
+
+        #check for collision with exit
+        level_complete = False
+        if pygame.sprite.spritecollide(self, screen.get_exit_group(), False):
+            level_complete = True
+
+        #check if fallen off the map
+        if self.rect.bottom > SCREEN_HEIGHT:
+            self.health = 0
+
+
+        #check if going off the edges of the screen
+        if self.char_type == 'player':
+            if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
+                dx = 0
+
+        #update rectangle position
+        self.rect.x += dx
+        self.rect.y += dy
+
+        #update scroll based on player position
+        if self.char_type == 'player':
+            if (
+                self.rect.right > SCREEN_WIDTH - SCROLL_THRESH and screen.get_bg_scroll() <
+                (screen.get_level_length() * TILE_SIZE) - SCREEN_WIDTH
+               ) or (self.rect.left < SCROLL_THRESH and screen.get_bg_scroll() > abs(dx)):
+                self.rect.x -= dx
+                screen_scroll = -dx
+
+        return screen_scroll, level_complete    

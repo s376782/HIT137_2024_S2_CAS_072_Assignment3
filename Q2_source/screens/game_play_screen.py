@@ -4,18 +4,26 @@ import pygame
 from typing import List, override
 from pygame.event import Event
 from pygame.sprite import Group
-
 from screens.base_screen import BaseScreen
 from screens.tile_manager import TileManager
 from contracts.screen_interfaces import IPlayScreen
 from widgets.bomb import Bomb
 from widgets.health_bar import HealthBar
-from settings import SCREEN_HEIGHT, TILE_SIZE
+from settings import SCREEN_HEIGHT, TILE_SIZE, WHITE
+from widgets.character import Player
 
-pine1_img = pygame.image.load('img/Background/pine1.png').convert_alpha()
-pine2_img = pygame.image.load('img/Background/pine2.png').convert_alpha()
-mountain_img = pygame.image.load('img/Background/mountain.png').convert_alpha()
-sky_img = pygame.image.load('img/Background/sky_cloud.png').convert_alpha()
+Layer_0000_9_img = pygame.image.load('img/Background/Layer_0000_9.png').convert_alpha()
+Layer_0001_8_img = pygame.image.load('img/Background/Layer_0001_8.png').convert_alpha()
+Layer_0002_7_img = pygame.image.load('img/Background/Layer_0002_7.png').convert_alpha()
+Layer_0003_6_img = pygame.image.load('img/Background/Layer_0003_6.png').convert_alpha()
+Layer_0004_Lights_img = pygame.image.load('img/Background/Layer_0004_Lights.png').convert_alpha()
+Layer_0005_5_img = pygame.image.load('img/Background/Layer_0005_5.png').convert_alpha()
+Layer_0006_4_img = pygame.image.load('img/Background/Layer_0006_4.png').convert_alpha()
+Layer_0007_Lights_img = pygame.image.load('img/Background/Layer_0007_Lights.png').convert_alpha()
+Layer_0008_3_img = pygame.image.load('img/Background/Layer_0008_3.png').convert_alpha()
+Layer_0009_2_img = pygame.image.load('img/Background/Layer_0009_2.png').convert_alpha()
+Layer_0010_1_img = pygame.image.load('img/Background/Layer_0010_1.png').convert_alpha()
+Layer_0011_0_img = pygame.image.load('img/Background/Layer_0011_0.png').convert_alpha()
 
 class GamePlayScreen(BaseScreen, IPlayScreen):
     def __init__(self, onPlayerDie):
@@ -23,7 +31,7 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
         self.sprites.add(
             HealthBar(10, 10)
         )
-
+        self.onPlayerDie = onPlayerDie
         self.bomb_group = pygame.sprite.Group()
         self.explosion_group = pygame.sprite.Group()
         self.arrow_group = pygame.sprite.Group()
@@ -129,6 +137,12 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
                 self.load_level(self.current_level+1)
         else:
             self.screen_scroll = 0
+            if self.player.lives > 0:
+                self.player.lives -= 1
+                #self.player.respawn()
+                self.load_level(self.current_level)    
+            else:
+                self.onPlayerDie()
 
         # check for uplevel
         level_complete = False
@@ -138,12 +152,35 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
     @override
     def draw_background(self, screen: pygame.Surface):
         super().draw_background(screen)
-        width = sky_img.get_width()
+        width = Layer_0011_0_img.get_width()
         for x in range(5):
-            screen.blit(sky_img, ((x * width) - self.bg_scroll * 0.5, 0))
-            screen.blit(mountain_img, ((x * width) - self.bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
-            screen.blit(pine1_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
-            screen.blit(pine2_img, ((x * width) - self.bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height()))
+            screen.blit(Layer_0011_0_img, ((x * width) - self.bg_scroll * 0.5, 0))
+            screen.blit(Layer_0010_1_img, ((x * width) - self.bg_scroll * 0.6, SCREEN_HEIGHT - Layer_0010_1_img.get_height()))
+            screen.blit(Layer_0009_2_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - Layer_0009_2_img.get_height()))
+            screen.blit(Layer_0008_3_img, ((x * width) - self.bg_scroll * 0.8, SCREEN_HEIGHT - Layer_0008_3_img.get_height()))
+            screen.blit(Layer_0007_Lights_img, ((x * width) - self.bg_scroll * 0.6, SCREEN_HEIGHT - Layer_0007_Lights_img.get_height()))
+            screen.blit(Layer_0006_4_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - Layer_0006_4_img.get_height()))
+            screen.blit(Layer_0005_5_img, ((x * width) - self.bg_scroll * 0.8, SCREEN_HEIGHT - Layer_0005_5_img.get_height()))
+            screen.blit(Layer_0004_Lights_img, ((x * width) - self.bg_scroll * 0.6, SCREEN_HEIGHT - Layer_0004_Lights_img.get_height()))
+            screen.blit(Layer_0003_6_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - Layer_0003_6_img.get_height()))
+            screen.blit(Layer_0002_7_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - Layer_0002_7_img.get_height()))
+            screen.blit(Layer_0001_8_img, ((x * width) - self.bg_scroll * 0.7, SCREEN_HEIGHT - Layer_0001_8_img.get_height()))
+            screen.blit(Layer_0000_9_img, ((x * width) - self.bg_scroll * 0.8, SCREEN_HEIGHT - Layer_0000_9_img.get_height()))
+        
+        #define font
+        font = pygame.font.SysFont('Futura', 30)
+
+        def draw_text(text, font, text_col, x, y):
+            img = font.render(text, True, text_col)
+            screen.blit(img, (x, y))
+
+        #show arrow
+        draw_text(f'Arrow: {self.player.arrow}', font, WHITE, 10, 35)
+        #show bombs
+        draw_text(f'Bombs: {self.player.bombs}', font, WHITE, 10, 55)
+        #show lives
+        draw_text(f'Lives: {self.player.lives}', font, WHITE, 10, 75)
+
 
     @override
     def draw_sprites(self, screen: pygame.Surface):
@@ -152,19 +189,6 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
         self.bomb_group.draw(screen)
         self.explosion_group.draw(screen)
         self.tile_manager.tile_group.draw(screen)
-
-    @override
-    def draw(self, screen: pygame.Surface):
-        super().draw(screen)
-
-        # #show arrow
-        # draw_text('ARROW: ', font, WHITE, 10, 35)
-        # for x in range(player.arrow):
-        #     screen.blit(arrow_img, (90 + (x * 10), 40))
-        # #show bombs
-        # draw_text('BOMBS: ', font, WHITE, 10, 60)
-        # for x in range(player.bombs):
-        #     screen.blit(bomb_img, (135 + (x * 15), 60))
 
     @override
     def handle_events(self, events: List[Event]):

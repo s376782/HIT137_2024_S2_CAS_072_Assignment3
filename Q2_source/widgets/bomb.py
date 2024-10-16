@@ -65,8 +65,8 @@ class Bomb(pygame.sprite.Sprite):
                 #do damage to anyone that is nearby
                 if abs(self.rect.centerx - screen.get_player().rect.centerx) < TILE_SIZE * 2 and \
                     abs(self.rect.centery - screen.get_player().rect.centery) < TILE_SIZE * 2:
-                    screen.get_player().health -= 50
+                    screen.get_player().health -= 25
                 for enemy in screen.get_enemy_group():
                     if abs(self.rect.centerx - enemy.rect.centerx) < TILE_SIZE * 2 and \
                         abs(self.rect.centery - enemy.rect.centery) < TILE_SIZE * 2:
-                        enemy.health -= 50
+                        enemy.health -= 75

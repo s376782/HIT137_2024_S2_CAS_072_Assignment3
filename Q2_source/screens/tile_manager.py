@@ -3,7 +3,7 @@ from widgets.itembox_tile import ItemBoxTile
 from widgets.decoration_tile import DecorationTile
 from widgets.exit_tile import ExitTile
 from widgets.water_tile import WaterTile
-from widgets.character import Enemy, Character
+from widgets.character import Boss, Enemy, Player
 from widgets.tile import Tile
 
 class TileManager:
@@ -31,7 +31,7 @@ class TileManager:
             tile = DecorationTile(tileId, x, y)
             self.decoration_group.add(tile)
         elif tileId == 15: # create player
-            self.player = tile = Character(tileId, x, y)
+            self.player = tile = Player(tileId, x, y)
         elif tileId == 16: # create enemy
             tile = Enemy(tileId, x, y)
             self.enemy_group.add(tile)
@@ -47,6 +47,9 @@ class TileManager:
         elif tileId == 20: #create exit
             tile = ExitTile(tileId, x, y)
             self.exit_group.add(tile)
+        elif tileId == 21: # boss
+            tile = Boss(tileId, x, y)
+            self.enemy_group.add(tile)
 
         if tile is not None:
             self.tile_group.add(tile)

@@ -2,9 +2,13 @@ import pygame
 from typing import override
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, callback):
+    def __init__(self, x, y, image, callback, scale):
         pygame.sprite.Sprite.__init__(self)
-        self.image = image
+
+        width = image.get_width()
+        height = image.get_height()
+
+        self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.clicked = False
@@ -25,16 +29,16 @@ class Button(pygame.sprite.Sprite):
             self.clicked = False
 
 class StartButton(Button):
-    def __init__(self, x, y, callback):
+    def __init__(self, x, y, callback, scale = 1):
         img = pygame.image.load('img/start_btn.png').convert_alpha()
-        super().__init__(x, y, img, callback)
+        super().__init__(x, y, img, callback, scale)
 
 class ExitButton(Button):
-    def __init__(self, x, y, callback):
+    def __init__(self, x, y, callback, scale = 1):
         img = pygame.image.load('img/exit_btn.png').convert_alpha()
-        super().__init__(x, y, img, callback)
+        super().__init__(x, y, img, callback, scale)
 
 class RestartButton(Button):
-    def __init__(self, x, y, callback):
+    def __init__(self, x, y, callback, scale = 1):
         img = pygame.image.load('img/restart_btn.png').convert_alpha()
-        super().__init__(x, y, img, callback)
+        super().__init__(x, y, img, callback, scale)

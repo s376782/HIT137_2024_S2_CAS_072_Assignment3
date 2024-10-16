@@ -1,161 +1,133 @@
 import pandas as pd
 import tkinter as tk
 from tkinter import messagebox, ttk
+from services.product_service import ProductService
 from models.product import Product
 from pages.base_page import BasePage
-from constants import frame_styles, bg0_color, fg0_color
+from constants import bg0_color, fg0_color
 
-class ProductListPage(BasePage):  # inherits from the GUI class
+class ProductListPage(BasePage):
 
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller, product_service: ProductService):
         super().__init__(parent, controller)
-        # Define the path to the Excel file as an instance variable
-        self.file_path = "data/Product.xlsx"  # Set self.file_path here
+
+        self.__product_service = product_service
 
         # Define colors
         bg_color = "#3b5998"  # blue
         fg_color = "#ffffff"  # White text
-        btn_color = "#4267B2"  # Slightly lighter blue for buttons
 
         # Set the background color of the main window
         self.configure(bg=bg_color)
 
         # Product list frame
-        frame1 = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
-        frame1.place(rely=0.0, relx=0, height=700, width=1900)
+        frame = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
+        frame.place(rely=0.0, relx=0, height=700, width=1900)
 
         # This is a treeview.
-        tv1 = ttk.Treeview(frame1)
-        column_list_account = ["Name", "Type", "Sale price"]
-        tv1['columns'] = column_list_account
-        tv1["show"] = "headings"  # removes empty column
-        for column in column_list_account:
-            tv1.heading(column, text=column)
-            tv1.column(column, width=50)
-        tv1.place(relheight=1, relwidth=0.995)
-        treescroll = tk.Scrollbar(frame1)
-        treescroll.configure(command=tv1.yview)
-        tv1.configure(yscrollcommand=treescroll.set)
-        treescroll.pack(side="right", fill="y")
+        self.__tv = ttk.Treeview(frame)
+        columns = ["Name", "Type", "Sale price"]
+        self.__tv['columns'] = columns
+        self.__tv["show"] = "headings"  # removes empty column
+        for column in columns:
+            self.__tv.heading(column, text=column)
+            self.__tv.column(column, width=50)
+        self.__tv.place(relheight=1, relwidth=0.995)
 
+        # Add a scrollbar to the treeview
+        treescroll = tk.Scrollbar(frame)
+        treescroll.configure(command=self.__tv.yview)
+        self.__tv.configure(yscrollcommand=treescroll.set)
+        treescroll.pack(side="right", fill="y")  # Position the scrollbar on the right side
 
         total_label = tk.Label(self, text="SUMMARY", bg="#FFFFFF", fg = "#000000", font=("Arial", 12, "bold") )
         total_label.place(rely=0.7, relx=0.02)
 
-        #Count data total
-        total_label1 = tk.Label(self, text="Total Products: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
-        total_label1.place(rely=0.74, relx=0.02)
+        self.__total_label1 = tk.Label(self, text="Total Products: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        self.__total_label1.place(rely=0.74, relx=0.02)
 
-        #Count data total
-        total_label2 = tk.Label(self, text="Total Type: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
-        total_label2.place(rely=0.78, relx=0.02)
+        self.__total_label2 = tk.Label(self, text="Total Type: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        self.__total_label2.place(rely=0.78, relx=0.02)
 
-        #Count data total
-        total_label3 = tk.Label(self, text="Max price product: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
-        total_label3.place(rely=0.82, relx=0.02)
+        self.__total_label3 = tk.Label(self, text="Max price product: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        self.__total_label3.place(rely=0.82, relx=0.02)
 
-        #Count data total
-        total_label4 = tk.Label(self, text="Min price product: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
-        total_label4.place(rely=0.86, relx=0.02)
-
-
-        def Load_data():
-
-            # Read the data from the Excel file
-            file_path = "data/Product.xlsx"
-            df = pd.read_excel(file_path)  # Assuming the file has the required columns
-
-                # Convert the DataFrame to a list of lists (as expected by Treeview)
-            product_list1 = df.values.tolist()
-
-            for row in product_list1:
-                tv1.insert("", "end", values=row)
-
-
-            # Create the label and configure it
-            #Count product
-            total_label1.config(text=f"- Total Product: {len(product_list1)}")
-
-            #Count type
-            total_label2.config(text=f"- Total Type: {df["Type"].nunique()}")
-
-            # Get max price product
-            max_price_index = df['Price'].idxmax()  # index of max price product
-            max_price_product_name = df.iloc[max_price_index]['Name']
-            max_price_product_price = df.iloc[max_price_index]['Price']
-            total_label3.config(text=f"- Max price product: {max_price_product_name} with price: {max_price_product_price:.2f}")
-
-            # Get min price product
-            min_price_index = df['Price'].idxmin()  # index of min price product
-            min_price_product_name = df.iloc[min_price_index]['Name']
-            min_price_product_price = df.iloc[min_price_index]['Price']
-            total_label4.config(text=f"- Min price product: {min_price_product_name} with price: {min_price_product_price:.2f}")
-
-    # Include other methods like Refresh_data, open_popup, etc.
-        def Refresh_data():
-            # Deletes the data in the current treeview and reinserts it
-            tv1.delete(*tv1.get_children())  # *=splat operator
-            Load_data()
-
-        Load_data()
-
-        def open_popup():
-            # Create a new popup window
-            popup = tk.Toplevel(self)
-            popup.title("Add New Product")  # Set the window title
-            popup.geometry("400x300")  # Set the size of the popup window
-
-            # Labels and entry fields for product name, type, and sale price
-            tk.Label(popup, text="Product Name").pack(pady=5)  # Label for product name
-            name_entry = tk.Entry(popup)  # Entry field for product name
-            name_entry.pack(pady=5)
-
-            tk.Label(popup, text="Product Type").pack(pady=5)  # Label for product type
-            type_entry = tk.Entry(popup)  # Entry field for product type
-            type_entry.pack(pady=5)
-
-            tk.Label(popup, text="Sale Price").pack(pady=5)  # Label for sale price
-            price_entry = tk.Entry(popup)  # Entry field for sale price
-            price_entry.pack(pady=5)
-
-            # Function to save the new product to the Excel file
-            def save_product():
-                product = Product(name_entry.get(), type_entry.get(), price_entry.get())
-                # Get the data entered by the user
-                new_product = [
-                    product.get_name(),  # Get the product name
-                    product.type,  # Get the product type
-                    product.saleprice  # Get the sale price
-                ]
-
-                # Validate if all fields are filled
-                if not all(new_product):
-                    messagebox.showerror("Error", "All fields must be filled")  # Show error if fields are empty
-                    return
-
-                try:
-                    # Read the existing Excel data into a pandas DataFrame
-                    df = pd.read_excel(self.file_path)
-
-                    # Append the new product to the DataFrame
-                    df.loc[len(df)] = new_product
-
-                    # Save the updated DataFrame back to the Excel file
-                    df.to_excel(self.file_path, index=False)
-
-                    # Refresh the Treeview to show the newly added product
-                    Refresh_data()
-
-                    # Close the popup window after saving the product
-                    popup.destroy()
-
-                except Exception as e:
-                    # Show error message if saving fails
-                    messagebox.showerror("Error", f"Failed to save product: {e}")
-
-            # Save button in the popup window
-            tk.Button(popup, text="Save", command=save_product).pack(pady=20)  # Button to trigger save action
+        self.__total_label4 = tk.Label(self, text="Min price product: 0", bg="#FFFFFF", fg = "#2b3d6e", font=("Arial", 11, "bold"))
+        self.__total_label4.place(rely=0.86, relx=0.02)
 
         # Button to open the popup for adding a new product
-        add_product_button = tk.Button(self, text="Add New Product", command=open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
+        add_product_button = tk.Button(self, text="Add New Product", command=self.__open_popup,  bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))
         add_product_button.place(rely=0, relx=0.85)  # Position the button at the bottom of the window
+
+        self.__load_data()
+
+    def __load_data(self):
+
+        data = self.__product_service.values()
+
+        # Insert data into the Treeview
+        for row in data:
+            self.__tv.insert("", "end", values=row)
+
+        # Update summary labels based on the loaded data
+        self.__total_label1.config(text=f"- Total Product: {len(data)}")
+        self.__total_label2.config(text=f"- Total Type: {self.__product_service.get_total_type()}")
+
+        # Get max price product
+        max_price_product_name, max_price_product_price = self.__product_service.get_max_price_product()
+        self.__total_label3.config(text=f"- Max price product: {max_price_product_name} with price: {max_price_product_price:.2f}")
+
+        # Get min price product
+        min_price_product_name, min_price_product_price = self.__product_service.get_min_price_product()
+        self.__total_label4.config(text=f"- Min price product: {min_price_product_name} with price: {min_price_product_price:.2f}")
+
+    def __refresh_data(self):
+        """
+        (private) Clears the current Treeview and reloads the data.
+        """
+        self.__tv.delete(*self.__tv.get_children()) # Delete all current rows in the Treeview
+        self.__load_data() # Reload the data and refresh the view
+
+    def __open_popup(self):
+        # Create a new self.__popup window
+        self.__popup = tk.Toplevel(self)
+        self.__popup.title("Add New Product")  # Set the window title
+        self.__popup.geometry("400x300")  # Set the size of the self.__popup window
+
+        # Labels and entry fields for product name, type, and sale price
+        tk.Label(self.__popup, text="Product Name").pack(pady=5)  # Label for product name
+        self.__name_entry = tk.Entry(self.__popup)  # Entry field for product name
+        self.__name_entry.pack(pady=5)
+
+        tk.Label(self.__popup, text="Product Type").pack(pady=5)  # Label for product type
+        self.__type_entry = tk.Entry(self.__popup)  # Entry field for product type
+        self.__type_entry.pack(pady=5)
+
+        tk.Label(self.__popup, text="Sale Price").pack(pady=5)  # Label for sale price
+        self.__price_entry = tk.Entry(self.__popup)  # Entry field for sale price
+        self.__price_entry.pack(pady=5)
+
+        # Save button in the self.__popup window
+        tk.Button(self.__popup, text="Save", command=self.__save_product).pack(pady=20)  # Button to trigger save action
+
+    def __save_product(self):
+        try:
+            product = Product(self.__name_entry.get(),
+                            self.__type_entry.get(),
+                            float(self.__price_entry.get()))
+
+            # Get the data entered by the user
+            new_product = product.get_data()
+            if not all(new_product):
+                messagebox.showerror("Error", "All fields must be filled")  # Show error if fields are empty
+                return
+
+            self.__product_service.add(new_product)
+            self.__refresh_data()
+
+            # Close the self.__popup window after saving the product
+            self.__popup.destroy()
+
+        except Exception as e:
+            # Show error message if saving fails
+            messagebox.showerror("Error", f"Failed to save product: {e}")

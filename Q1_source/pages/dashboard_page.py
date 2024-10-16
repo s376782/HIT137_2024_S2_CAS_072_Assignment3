@@ -24,7 +24,10 @@ class DashboardPage(BasePage):
         ax.set_xlabel(labelx)
         ax.set_ylabel(labely)
         ax.set_title(titleofchart, fontweight = "bold", fontsize = "16")
+
+        ax.set_xticks(range(len(x)))  # Set positions for each bar
         ax.set_xticklabels(x, rotation=rotation)
+
         plt.tight_layout()
         return fig
 

@@ -3,6 +3,7 @@ from typing import override
 
 from login_window import ILoginCallback, LoginWindow
 from main_window import MainWindow
+from services.customer_service import CustomerService
 from services.product_service import ProductService
 from services.purchase_order_service import PurchaseOrderService
 from services.sale_order_service import SaleOrderService
@@ -13,6 +14,7 @@ class Application(ILoginCallback, ISignupCallback):
     '''
 
     def __init__(self):
+        self.__customer_service = CustomerService()
         self.__product_service = ProductService()
         self.__purchase_order_service = PurchaseOrderService()
         self.__sale_order_service = SaleOrderService()
@@ -21,7 +23,8 @@ class Application(ILoginCallback, ISignupCallback):
     @override
     def on_login_success(self, username: str):
         self.__run_window(
-            MainWindow(self.__product_service,
+            MainWindow(self.__customer_service,
+                       self.__product_service,
                        self.__purchase_order_service,
                        self.__sale_order_service)
         )

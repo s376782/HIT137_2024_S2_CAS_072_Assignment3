@@ -1,13 +1,38 @@
 from models.base_model import BaseModel
 
 class SO(BaseModel):
-    # __init__ is known as the constructor
-    def __init__(self, name, date, cusname, saleperson, total):
-        self.name = name
-        self.date = date
-        self.cusname = cusname
-        self.saleperson = saleperson
-        self.total = total
+    """
+    SO class represents a Sales Order with attributes such as name, date, customer name,
+    salesperson, and total. Inherits from BaseModel and implements the abstract method get_data.
+    """
 
-    def get_name(self):
-        return "SO" + str(super().get_name())
+    def __init__(self, name, date, cusname, saleperson, total):
+        """
+        Initializes the Sales Order (SO) object with the given attributes.
+
+        Args:
+            name (str): The name of the sales order.
+            date (str): The creation date of the sales order.
+            cusname (str): The customer name for the sales order.
+            saleperson (str): The salesperson responsible for the sales order.
+            total (float): The total amount of the sales order.
+        """
+        self.name = name
+        '''(public) The name of the sales order.'''
+        self.date = date
+        '''(public) The creation date of the sales order.'''
+        self.cusname = cusname
+        '''(public) The customer name for the sales order.'''
+        self.saleperson = saleperson
+        '''(public) The salesperson responsible for the sales order.'''
+        self.total = total
+        '''(public) The total amount of the sales order.'''
+
+    def get_data(self) -> list:
+        """
+        (public) Returns the sales order's data as a list.
+
+        Returns:
+            list: A list containing the sales order's name, date, customer name, salesperson, and total amount.
+        """
+        return [self.name, self.date, self.cusname, self.saleperson, self.total]

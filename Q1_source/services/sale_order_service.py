@@ -39,3 +39,19 @@ class SaleOrderService(BaseService[SO]):
         X = top_saleperson.index
         Y = top_saleperson.values
         return X, Y
+    
+    def get_total_amount(self):
+        return self._df["Total"].sum()
+
+    def get_number_of_customers(self):
+        return self._df["Customer name"].nunique()
+
+    def get_top_regular_customer(self):
+        top_customer = self._df.groupby('Customer name')['Total'].sum().idxmax()
+        max_amount = self._df.groupby('Customer name')['Total'].sum().max()
+        return top_customer, max_amount
+    
+    def get_top_sale_person(self):
+        top_salesperson = self._df.groupby('Sale person')['Total'].sum().idxmax()  #find sale person
+        max_sales_amount = self._df.groupby('Sale person')['Total'].sum().max()  # Lấy tổng doanh số của người đó
+        return top_salesperson, max_sales_amount

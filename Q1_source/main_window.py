@@ -4,6 +4,7 @@ from pages.dashboard_page import DashboardPage
 from pages.product_list_page import ProductListPage
 from pages.purchase_order_page import PurchaseOrderPage
 from pages.sale_order_page import SaleOrderPage
+from services.customer_service import CustomerService
 from services.product_service import ProductService
 from services.purchase_order_service import PurchaseOrderService
 from services.sale_order_service import SaleOrderService
@@ -15,6 +16,7 @@ class MainWindow(Tk):
     Class Application has a multiple inheritance (inherit Tk and ILoginCallback)
     '''
     def __init__(self,
+                 customer_service: CustomerService,
                  product_service: ProductService,
                  purchase_order_service: PurchaseOrderService,
                  sale_order_service: SaleOrderService):
@@ -29,8 +31,8 @@ class MainWindow(Tk):
         self.__frames = {
             SaleOrderPage.__name__: SaleOrderPage(self, self, sale_order_service),
             PurchaseOrderPage.__name__: PurchaseOrderPage(self, self, purchase_order_service),
-            ProductListPage.__name__: ProductListPage(self, self),
-            CustomerPage.__name__: CustomerPage(self, self),
+            ProductListPage.__name__: ProductListPage(self, self, product_service),
+            CustomerPage.__name__: CustomerPage(self, self, customer_service),
             DashboardPage.__name__: DashboardPage(self, self, sale_order_service, purchase_order_service, product_service),
         }
         '''__frame variable is private encapsulation'''

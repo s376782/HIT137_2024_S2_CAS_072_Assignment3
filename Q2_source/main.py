@@ -1,5 +1,6 @@
-import os
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
+if __name__ == '__main__':
+    import os
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-import game
-game.Game().run()
+    import game
+    game.Game().run()

@@ -7,14 +7,14 @@ class PurchaseOrderService(BaseService[PO]):
     It extends the BaseService class and interacts with purchase order data stored in an Excel file.
     """
 
-    __Source = 'data/PurchaseOrder.xlsx'
+    __source = 'data/PurchaseOrder.xlsx'
     '''(private) Path to the Excel file for purchase orders.'''
 
     def __init__(self):
         """
         Initializes the PurchaseOrderService by loading the purchase orders from the Excel file.
         """
-        super().__init__(PurchaseOrderService.__Source)
+        super().__init__(PurchaseOrderService.__source)
 
     def get_top_venders(self, head=10):
         """

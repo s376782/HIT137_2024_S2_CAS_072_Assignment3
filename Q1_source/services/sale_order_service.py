@@ -8,14 +8,14 @@ class SaleOrderService(BaseService[SO]):
     and interacts with sales order data stored in an Excel file.
     """
 
-    __Source = 'data/SaleOrder.xlsx'
+    __source = 'data/SaleOrder.xlsx'
     '''(private) Path to the Excel file storing sales orders.'''
 
     def __init__(self):
         """
         Initializes the SaleOrderService by loading sales order data from the Excel file.
         """
-        super().__init__(SaleOrderService.__Source)
+        super().__init__(SaleOrderService.__source)
 
     @override
     def add(self, model: SO):

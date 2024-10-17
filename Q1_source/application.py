@@ -11,23 +11,47 @@ from signup_window import ISignupCallback, SignupWindow
 
 class Application(ILoginCallback, ISignupCallback):
     """
-    Application class manages the lifecycle of the application's windows and handles 
-    transitions between login, signup, and main application pages.
-    
-    Implements ILoginCallback and ISignupCallback interfaces to handle user actions 
-    related to login and signup events.
+    Singleton Application class manages the lifecycle of the application's windows 
+    and handles transitions between login, signup, and main application pages.
+    It also stores and provides access to the authenticated state.
     """
+
+    _instance = None  # Class-level variable to hold the singleton instance
+
+    def __new__(cls, *args, **kwargs):
+        """
+        Override the __new__ method to implement the singleton pattern.
+        Ensures that only one instance of the Application class is created.
+        """
+        if cls._instance is None:
+            cls._instance = super(Application, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self):
         """
         Initializes the Application class by setting up the required services 
         and initializing window management.
+        This method will only be executed once due to the singleton design.
         """
-        self.__customer_service = CustomerService()
-        self.__product_service = ProductService()
-        self.__purchase_order_service = PurchaseOrderService()
-        self.__sale_order_service = SaleOrderService()
-        self.__active_window = None
+        if not hasattr(self, '_initialized'):  # Prevent reinitialization
+            self.__customer_service = CustomerService()
+            self.__product_service = ProductService()
+            self.__purchase_order_service = PurchaseOrderService()
+            self.__sale_order_service = SaleOrderService()
+            self.__active_window = None
+
+            self.is_authenticated = False  # Store the authenticated state
+
+            self._initialized = True  # Mark this instance as initialized
+
+    def is_user_authenticated(self):
+        """
+        (public) Check if the user is currently authenticated.
+
+        Returns:
+            bool: The current authenticated state.
+        """
+        return self.is_authenticated
 
     @override
     def on_login_success(self, username: str):
@@ -37,6 +61,7 @@ class Application(ILoginCallback, ISignupCallback):
         Args:
             username (str): The username of the logged-in user.
         """
+        self.is_authenticated = True # Mark the user as authenticated
         self.__run_window(
             MainWindow(self.__customer_service,
                        self.__product_service,

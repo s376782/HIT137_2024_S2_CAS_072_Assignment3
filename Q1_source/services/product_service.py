@@ -8,14 +8,14 @@ class ProductService(BaseService[Product]):
     and interacts with product data stored in an Excel file.
     """
 
-    __Source = 'data/Product.xlsx'
+    __source = 'data/Product.xlsx'
     '''(private) Path to the Excel file storing product data.'''
 
     def __init__(self):
         """
         Initializes the ProductService by loading product data from the Excel file.
         """
-        super().__init__(ProductService.__Source)
+        super().__init__(ProductService.__source)
 
     def get_type_report(self):
         """

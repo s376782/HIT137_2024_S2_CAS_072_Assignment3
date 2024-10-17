@@ -7,11 +7,11 @@ class CustomerService(BaseService[Person]):
     It extends the BaseService class and interacts with customer data stored in an Excel file.
     """
 
-    __Source = 'data/Customer.xlsx'
+    __source = 'data/Customer.xlsx'
     '''(private) Path to the Excel file storing customer data.'''
 
     def __init__(self):
         """
         Initializes the CustomerService by loading the customer data from the Excel file.
         """
-        super().__init__(CustomerService.__Source)
+        super().__init__(CustomerService.__source)

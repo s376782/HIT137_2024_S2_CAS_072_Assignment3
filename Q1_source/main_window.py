@@ -1,3 +1,4 @@
+from decorators import authorized, timing
 from menu_bar import MenuBar
 from pages.customer_page import CustomerPage
 from pages.dashboard_page import DashboardPage
@@ -37,11 +38,11 @@ class MainWindow(Tk):
 
         # Dictionary to hold page frames
         self.__frames = {
-            SaleOrderPage.__name__: SaleOrderPage(self, self, sale_order_service),
-            PurchaseOrderPage.__name__: PurchaseOrderPage(self, self, purchase_order_service),
-            ProductListPage.__name__: ProductListPage(self, self, product_service),
-            CustomerPage.__name__: CustomerPage(self, self, customer_service),
-            DashboardPage.__name__: DashboardPage(self, self, sale_order_service, purchase_order_service, product_service),
+            SaleOrderPage: SaleOrderPage(self, self, sale_order_service),
+            PurchaseOrderPage: PurchaseOrderPage(self, self, purchase_order_service),
+            ProductListPage: ProductListPage(self, self, product_service),
+            CustomerPage: CustomerPage(self, self, customer_service),
+            DashboardPage: DashboardPage(self, self, sale_order_service, purchase_order_service, product_service),
         }
         '''(private) Holds all the page frames.'''
 
@@ -53,15 +54,17 @@ class MainWindow(Tk):
         menubar = MenuBar(self)
         self.config(menu=menubar)
 
-    def show_page(self, name):
+    @timing
+    @authorized
+    def show_page(self, page_class):
         """
         (public) Method to show a specific page based on its name.
         
         Args:
             name (str): The name of the page to display.
         """
-        frame = self.__frames.get(name)
+        frame = self.__frames.get(page_class)
         if frame:
             frame.tkraise()
         else:
-            raise ValueError(f"Page '{name}' not found.")
+            raise ValueError(f"Page '{page_class.__name__}' not found.")

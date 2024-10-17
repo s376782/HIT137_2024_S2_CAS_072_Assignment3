@@ -56,10 +56,10 @@ class LoginWindow(Tk):
         label_pw.grid(row=2, column=0)
 
         # Entry fields
-        self.__entry_user = ttk.Entry(frame_login, width=45, cursor="xterm")
+        self.__entry_user = ttk.Entry(frame_login, width=30, cursor="xterm")
         self.__entry_user.grid(row=1, column=1)
 
-        self.__entry_pw = ttk.Entry(frame_login, width=45, cursor="xterm", show="*")
+        self.__entry_pw = ttk.Entry(frame_login, width=30, cursor="xterm", show="*")
         self.__entry_pw.grid(row=2, column=1)
 
         # Buttons

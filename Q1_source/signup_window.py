@@ -42,14 +42,7 @@ class SignupWindow(tk.Tk):
 
         # Styles for labels and text
         text_styles = {"font": ("Verdana", 10), "background": "#3F6BAA", "foreground": "#E1FFFF"}
-
-        # Labels for the registration form
-        label_user = tk.Label(main_frame, text_styles, text="New Username:")
-        label_user.grid(row=1, column=0)
-
-        label_pw = tk.Label(main_frame, text_styles, text="New Password:")
-        label_pw.grid(row=2, column=0)
-
+        
         # Entry fields for username and password
         self.__entry_user = ttk.Entry(main_frame, width=20, cursor="xterm")
 
@@ -60,10 +53,10 @@ class SignupWindow(tk.Tk):
         frame_signup.place(rely=0.30, relx=0.17, height=130, width=400)
         
         label_user = tk.Label(frame_signup, text_styles, text="New Username:")
-        label_user.grid(row=1, column=0,padx=20, pady=20)
+        label_user.grid(row=1, column=0,padx=10, pady=20)
 
         label_pw = tk.Label(frame_signup, text_styles, text="New Password:")
-        label_pw.grid(row=2, column=0, padx=5, pady=5)
+        label_pw.grid(row=2, column=0, padx=5, pady=0)
 
         self.__entry_user = ttk.Entry(frame_signup, width=30, cursor="xterm")
 
@@ -73,9 +66,6 @@ class SignupWindow(tk.Tk):
         self.__entry_pw.grid(row=2, column=1)
 
         # Signup button to trigger the account creation process
-        button = ttk.Button(main_frame, text="Create Account", command=self.__signup)
-        button.grid(row=4, column=1)
-
         button = ttk.Button(frame_signup, text="Create Account", command=self.__signup)
         button.place(rely=0.70, relx=0.75)
 

@@ -5,7 +5,7 @@ from settings import FPS, SCREEN_HEIGHT, SCREEN_WIDTH
 class Game:
     def onStart(self):
         from screens.game_play_screen import GamePlayScreen
-        self.current_screen = GamePlayScreen(self.onPlayerDie)
+        self.current_screen = GamePlayScreen(self.onPlayerDie, self.onGameCompleted)
         self.current_screen.load_level(1)
 
     def onExit(self):
@@ -13,7 +13,11 @@ class Game:
 
     def onPlayerDie(self):
         from screens.restart_screen import RestartScreen
-        self.current_screen = RestartScreen(self.onStart)
+        self.current_screen = RestartScreen(self.onStart, self.onExit)
+
+    def onGameCompleted(self):
+        from screens.restart_screen import RestartScreen
+        self.current_screen = RestartScreen(self.onStart, self.onExit, True)
 
     def handle_events(self, events):
         for event in events:

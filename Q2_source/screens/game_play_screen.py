@@ -9,7 +9,7 @@ from screens.tile_manager import TileManager
 from contracts.screen_interfaces import IPlayScreen
 from widgets.bomb import Bomb
 from widgets.health_bar import HealthBar
-from settings import SCREEN_HEIGHT, TILE_SIZE, WHITE
+from settings import MAX_LEVELS, SCREEN_HEIGHT, TILE_SIZE, WHITE
 from widgets.character import Player
 
 Layer_0000_9_img = pygame.image.load('img/Background/Layer_0000_9.png').convert_alpha()
@@ -26,12 +26,13 @@ Layer_0010_1_img = pygame.image.load('img/Background/Layer_0010_1.png').convert_
 Layer_0011_0_img = pygame.image.load('img/Background/Layer_0011_0.png').convert_alpha()
 
 class GamePlayScreen(BaseScreen, IPlayScreen):
-    def __init__(self, onPlayerDie):
+    def __init__(self, onPlayerDie, onGameCompleted):
         super().__init__()
         self.sprites.add(
             HealthBar(10, 10)
         )
         self.onPlayerDie = onPlayerDie
+        self.onGameCompleted = onGameCompleted
         self.bomb_group = pygame.sprite.Group()
         self.explosion_group = pygame.sprite.Group()
         self.arrow_group = pygame.sprite.Group()
@@ -147,12 +148,15 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
             self.bg_scroll -= self.screen_scroll
             #check if player has completed the level
             if self.level_complete:
-                self.load_level(self.current_level+1)
+                if self.current_level < MAX_LEVELS:    
+                    self.load_level(self.current_level+1)
+                else:
+                    self.onGameCompleted()
         else:
             self.screen_scroll = 0
             if self.player.lives > 0:    # Check to reduce player's lives 
                 self.player.lives -= 1
-                self.player.respawn()
+                self.player.respawn()     # Restart the current level with full health
                 self.load_level(self.current_level)
             if self.player.lives == 0:
                 self.onPlayerDie()

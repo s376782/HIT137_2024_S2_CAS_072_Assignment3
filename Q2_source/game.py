@@ -40,6 +40,9 @@ class Game:
         pygame.init()
         pygame.mixer.init()
 
+        # Window name (title)
+        pygame.display.set_caption("Save the Princess")
+
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         clock = pygame.time.Clock()
 

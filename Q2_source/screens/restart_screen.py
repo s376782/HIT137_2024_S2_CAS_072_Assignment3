@@ -13,7 +13,7 @@ class RestartScreen(BaseScreen):
 
 		# Initialize font and message
 		self.font = pygame.font.SysFont('Futura', 60)
-		self.game_over_text = "Game Completed!" if game_completed else "Game Over!"
+		self.game_over_text = "Game Completed! You saved the princess" if game_completed else "Game Over!"
 		
 			
 	def draw(self, screen):

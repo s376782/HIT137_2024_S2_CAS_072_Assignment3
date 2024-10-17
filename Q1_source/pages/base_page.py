@@ -6,6 +6,7 @@ class BasePage(Frame):
     and can be extended with custom functionality. Supports encapsulation, method overriding, 
     and can work with multiple inheritance if needed.
     '''
+
     def __init__(self, master, controller):
         '''
         Initializes BasePage with layout settings and a main frame.

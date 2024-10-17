@@ -21,7 +21,6 @@ class CustomerPage(BasePage):
             customer_service: Service to interact with customer data.
         """
         super().__init__(parent, controller)
-
         self.__customer_service = customer_service
         '''(private) Service to interact with customer data.'''
 
@@ -33,7 +32,7 @@ class CustomerPage(BasePage):
 
         # Create a labeled frame for displaying customer data
         frame = tk.LabelFrame(self, frame_styles, text="Customer", bg=bg2_color, fg=fg2_color, font=("Helvetica", 16, "bold"))
-        frame.place(rely=0, relx=0, height=700, width=1900)
+        frame.place(rely=0, relx=0, height=self._screen_height- self._screen_height/2.75, width=self._screen_width - 10)
 
         # Create a Treeview widget for displaying the customer information
         self.__tv = ttk.Treeview(frame)

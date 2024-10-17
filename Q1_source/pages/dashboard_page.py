@@ -14,12 +14,14 @@ class DashboardPage(BasePage):
 
     @staticmethod
     def __create_barchart(x, y,
+                          screen_height, screen_width,
                           labelx="Customer", labely="Total amount",
                           colors='maroon',
                           titleofchart="Total order value for each customer",
                           rotation=45):
+        
         """(private) Creates a bar chart and returns the figure."""
-        fig, ax = plt.subplots(figsize=(8, 5))
+        fig, ax = plt.subplots(figsize= (int(screen_width/200), int(screen_height/200)))
         ax.bar(x, y, color=colors, width=0.4)
         ax.set_xlabel(labelx)
         ax.set_ylabel(labely)
@@ -32,9 +34,11 @@ class DashboardPage(BasePage):
         return fig
 
     @staticmethod
-    def __create_piechart(labels, values, title="Distribution of Types"):
+    def __create_piechart(labels, values,
+                          screen_width, screen_height,
+                          title="Distribution of Types"):
         """(private) Creates a pie chart and returns the figure."""
-        fig, ax = plt.subplots(figsize=(8, 5))
+        fig, ax = plt.subplots(figsize=(int(screen_height/200), int(screen_width/200)))
         ax.pie(values, labels=labels, autopct='%1.1f%%')
         ax.set_title(title, fontweight = "bold", fontsize = "16")
         plt.tight_layout()
@@ -66,7 +70,7 @@ class DashboardPage(BasePage):
         frame_dashboard = tk.LabelFrame(self, text="Dashboard",
                                          bg=bg2_color, fg=fg2_color,
                                          font=("Helvetica", 16, "bold"))
-        frame_dashboard.place(rely=0, relx=0, height=1200, width=1900)
+        frame_dashboard.place(rely=0, relx=0, height=self._screen_height, width=self._screen_width)
 
         # Fetch data for charts
         customers, customer_totals = sale_order_service.get_top_customers()
@@ -76,25 +80,29 @@ class DashboardPage(BasePage):
 
         # Customer order bar chart
         self.__add_chart(frame_dashboard, row=0, column=0, 
-                         figure=DashboardPage.__create_barchart(customers, customer_totals, 
+                         figure=DashboardPage.__create_barchart(customers, customer_totals,
+                                                                self._screen_height, self._screen_width,
                                                                 "Customer", "Total sale amount", 
                                                                 'maroon', "Total order value for top 10 customers"))
 
         # Sale person bar chart
         self.__add_chart(frame_dashboard, row=0, column=1, 
-                         figure=DashboardPage.__create_barchart(sales_persons, sales_totals, 
+                         figure=DashboardPage.__create_barchart(sales_persons, sales_totals,
+                                                                self._screen_height, self._screen_width,
                                                                 "Sale person", "Total sale amount", 
                                                                 'blue', "Total sale amount for top 10 sellers"))
 
         # Vendor bar chart
         self.__add_chart(frame_dashboard, row=1, column=0, 
-                         figure=DashboardPage.__create_barchart(vendors, vendor_totals, 
+                         figure=DashboardPage.__create_barchart(vendors, vendor_totals,
+                                                                self._screen_height, self._screen_width, 
                                                                "Vendor name", "Total purchase amount", 
                                                                'yellow', "Total purchase amount for top 10 vendors"))
 
         # Product type pie chart
         self.__add_chart(frame_dashboard, row=1, column=1, 
                          figure=DashboardPage.__create_piechart(labels, counts,
+                                                                self._screen_height, self._screen_width,                                                          
                                                                 title="Distribution of Product Types"))
 
         # Run the Tkinter main loop
@@ -108,3 +116,5 @@ class DashboardPage(BasePage):
         canvas = FigureCanvasTkAgg(figure, master=frame)
         canvas.draw()
         canvas.get_tk_widget().pack()
+
+

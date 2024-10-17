@@ -47,7 +47,7 @@ class LoginWindow(Tk):
 
         # Labels
         label_title = Label(frame_login, title_styles, text="Login")
-        label_title.grid(row=0, column=1, columnspan=1)
+        label_title.grid(row=0, column=0, columnspan=1)
 
         label_user = Label(frame_login, text_styles, text="Username:")
         label_user.grid(row=1, column=0)

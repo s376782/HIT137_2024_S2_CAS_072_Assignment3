@@ -22,11 +22,12 @@ class BasePage(Frame):
         '''(protected) used by derived classes for navigation'''
 
         # Get screen width and height
-        screen_width = master.winfo_screenwidth()
-        screen_height = master.winfo_screenheight()
-
+        self._screen_width = master.winfo_screenwidth()
+        '''(protected) used to store width of screen'''
+        self._screen_height = master.winfo_screenheight()
+        '''(protected) used to store height of screen'''
         # Set the main_frame to fill the screen
-        self._main_frame = Frame(self, bg="#FFFFFF", height=screen_height, width=screen_width)
+        self._main_frame = Frame(self, bg="#FFFFFF", height=self._screen_height, width=self._screen_width)
         '''(protected) main content frame'''
 
         self._main_frame.pack(fill="both", expand=True)  # Ensure it expands to fill the entire screen

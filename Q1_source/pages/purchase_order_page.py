@@ -34,7 +34,7 @@ class PurchaseOrderPage(BasePage):
 
         # Create a labeled frame to contain the purchase orders
         frame = tk.LabelFrame(self, text="Purchase Orders", bg=bg3_color, fg=fg3_color, font=("Helvetica", 16, "bold"))
-        frame.place(rely=0, relx=0, height=700, width=1900)
+        frame.place(rely=0, relx=0, height=self._screen_height- self._screen_height/2.75, width=self._screen_width - 10)
 
         # Create a Treeview widget for displaying the purchase orders
         self.__tv = ttk.Treeview(frame)
@@ -55,27 +55,27 @@ class PurchaseOrderPage(BasePage):
 
         # Labels for displaying summary data
         total_label = tk.Label(self, text="SUMMARY", bg="#FFFFFF", fg = "#000000", font=("Arial", 12, "bold") )
-        total_label.place(rely=0.66, relx=0.02)
+        total_label.place(rely=0.7, relx=0.02)
 
         self.__total_label1 = tk.Label(self, text="Total Purchase Order: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
         '''(private) Label for displaying total purchase order'''
-        self.__total_label1.place(rely=0.7, relx=0.02)
+        self.__total_label1.place(rely=0.74, relx=0.02)
 
         self.__total_label2 = tk.Label(self, text="Total amount: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
         '''(private) Label for displaying total amount of all orders'''
-        self.__total_label2.place(rely=0.74, relx=0.02)
+        self.__total_label2.place(rely=0.78, relx=0.02)
 
         self.__total_label3 = tk.Label(self, text="Total customer have orders: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
         '''(private) Label for displaying the number of unique vendors'''
-        self.__total_label3.place(rely=0.78, relx=0.02)
+        self.__total_label3.place(rely=0.82, relx=0.02)
 
         self.__total_label4 = tk.Label(self, text="Top regular vendor: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
         '''(private) Label for displaying the top vendor with the highest total order amount'''
-        self.__total_label4.place(rely=0.82, relx=0.02)
+        self.__total_label4.place(rely=0.86, relx=0.02)
 
         self.__total_label5 = tk.Label(self, text="Top buyer: 0", bg="#FFFFFF", fg = "#3CB371", font=("Arial", 11, "bold"))
         '''(private) Label for displaying the top buyer with the highest total purchase amount'''
-        self.__total_label5.place(rely=0.86, relx=0.02)
+        self.__total_label5.place(rely=0.9, relx=0.02)
 
         # Button to open the popup for adding a new purchase order
         add_PO_button = tk.Button(self, text="Add new purchase order", command=self.__open_popup, bg=bg0_color, fg=fg0_color, font=("Helvetica", 10, "bold"))

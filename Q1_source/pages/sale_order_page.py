@@ -34,7 +34,7 @@ class SaleOrderPage(BasePage):
 
         # Create a labeled frame for displaying sale orders
         frame = tk.LabelFrame(self, text="Sale Orders", bg=bg2_color, fg=fg2_color, font=("Helvetica", 16, "bold"))
-        frame.place(rely=0, relx=0, height=700, width=1900)
+        frame.place(rely=0, relx=0, height=self._screen_height- self._screen_height/2.75, width=self._screen_width - 10)
 
         # Create a Treeview widget for displaying the sale orders
         self.__tv = ttk.Treeview(frame)

@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Frame
 
 class ISignupCallback:
     """
@@ -31,9 +31,13 @@ class SignupWindow(tk.Tk):
 
         main_frame = tk.Frame(self, bg="#3F6BAA", height=150, width=250)
         main_frame.pack_propagate(0)  # Prevents resizing of the window to fit widgets
+        main_frame = tk.Frame(self, bg="#3F6BAA", height=130, width=400)
+        # pack_propagate prevents the window resizing to match the widgets
+        main_frame.pack_propagate(0)
+
         main_frame.pack(fill="both", expand="true")
 
-        self.geometry("250x150")
+        self.geometry("626x500")
         self.resizable(0, 0)
 
         # Styles for labels and text
@@ -48,14 +52,33 @@ class SignupWindow(tk.Tk):
 
         # Entry fields for username and password
         self.__entry_user = ttk.Entry(main_frame, width=20, cursor="xterm")
+
+        text_styles = {"font": ("Verdana", 10),
+                       "background": "#3F6BAA",
+                       "foreground": "#E1FFFF"}
+        frame_signup = Frame(main_frame, bg="blue", relief="groove", bd=2)  # this is the frame that holds all the login details and buttons
+        frame_signup.place(rely=0.30, relx=0.17, height=130, width=400)
+        
+        label_user = tk.Label(frame_signup, text_styles, text="New Username:")
+        label_user.grid(row=1, column=0,padx=20, pady=20)
+
+        label_pw = tk.Label(frame_signup, text_styles, text="New Password:")
+        label_pw.grid(row=2, column=0, padx=5, pady=5)
+
+        self.__entry_user = ttk.Entry(frame_signup, width=30, cursor="xterm")
+
         self.__entry_user.grid(row=1, column=1)
 
-        self.__entry_pw = ttk.Entry(main_frame, width=20, cursor="xterm", show="*")
+        self.__entry_pw = ttk.Entry(frame_signup, width=30, cursor="xterm", show="*")
         self.__entry_pw.grid(row=2, column=1)
 
         # Signup button to trigger the account creation process
         button = ttk.Button(main_frame, text="Create Account", command=self.__signup)
         button.grid(row=4, column=1)
+
+        button = ttk.Button(frame_signup, text="Create Account", command=self.__signup)
+        button.place(rely=0.70, relx=0.75)
+
 
     def __signup(self):
         """

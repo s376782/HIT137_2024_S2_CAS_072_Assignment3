@@ -34,7 +34,7 @@ class ProductListPage(BasePage):
 
         # Create a labeled frame for displaying product data
         frame = tk.LabelFrame(self, text="Product list", bg=bg_color, fg=fg_color, font=("Helvetica", 16, "bold"))
-        frame.place(rely=0.0, relx=0, height=700, width=1900)
+        frame.place(rely=0.0, relx=0, height=self._screen_height- self._screen_height/2.75, width=self._screen_width - 10)
 
         # Create a Treeview widget for displaying the product list
         self.__tv = ttk.Treeview(frame)

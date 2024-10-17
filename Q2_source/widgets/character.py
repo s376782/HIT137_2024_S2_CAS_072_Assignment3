@@ -19,12 +19,12 @@ class Character(Tile):
         super().__init__(tile, x, y)
         self.alive = True
         self.char_type = char_type
-        self.speed = speed
+        self.speed = speed     # Speed
         self.arrow = arrow
         self.start_arrow = arrow
         self.shoot_cooldown = 0
         self.bombs = bombs
-        self.health = 100
+        self.health = 100     # Health set to 100 (for player and small enemy)
         self.max_health = self.health
         self.direction = 1
         self.vel_y = 0
@@ -67,7 +67,8 @@ class Character(Tile):
         #update cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
-
+    
+    # Movement 
     def movement(self, screen: IPlayScreen, moving_left: bool, moving_right: bool):
         #reset movement variables
         screen_scroll = 0
@@ -257,26 +258,24 @@ class Enemy(Character):
 class Player(Character, IPlayer):
     def __init__(self, tile, x, y):
         Character.__init__(self, tile, 'player', x, y, 1.5, 7, 20, 5)
-        self.lives = 3
+        self.lives = 3    # The player has 3 lives
+    
+    def respawn(self):
+        self.alive = True
+        self.health = self.max_health  # Reset health to max health
 
-    # def respawn(self):
-    #     self.alive = True
-    #     self.health = self.max_health  # Reset health
-    #     self.rect.x = 100  
-    #     self.rect.y = 100
-
-
+# Create boss enemy with health = 200
 class Boss(Enemy):
     def __init__(self, tile, x, y, scale=1, speed=1, arrow=30, bombs=0):
         super().__init__(tile, x, y, scale, speed, arrow, bombs)
         self.flip = True
-        self.health = 200
+        self.health = 300
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.vision = pygame.Rect(0, 0, 150, 20)
 
     @override
-    def ai(self, screen):
+    def ai(self, screen):    
         player = screen.get_player()
         if self.alive and player.alive:
             if self.idling == False and random.randint(1, 200) == 1:
@@ -297,7 +296,7 @@ class Boss(Enemy):
                         ai_moving_right = False
                     ai_moving_left = not ai_moving_right
                     self.movement(screen, False, False)
-                    self.update_action(1)#1: run
+                    self.update_action(1)  #1: run
                     self.move_counter += 1
                     #update ai vision as the enemy moves
                     self.vision.center = (self.rect.centerx + 75 * self.direction, self.rect.centery)

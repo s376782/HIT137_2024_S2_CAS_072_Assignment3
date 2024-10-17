@@ -79,16 +79,29 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
     def get_arrow_group(self) -> Group:
         return self.arrow_group
 
+    # 3 levels
     def load_level(self, level: int):
+        # Save the current player's lives (if player already exists)
+        if hasattr(self, 'player'):
+            saved_lives = self.player.lives
+        else:
+            saved_lives = 3 
         world_data = []
-        with open(f'level{level}_data.csv', newline='') as csvfile:
+        with open(f'level{level}_data.csv', newline='') as csvfile:      # 3 levels
             reader = csv.reader(csvfile)
             for x, row in enumerate(reader):
                 rowData = []
                 for y, tile in enumerate(row):
                     rowData.append(int(tile))
-                world_data.append(rowData)
+                world_data.append(rowData)  
         self.process_data(world_data)
+        # Restore player's lives and level
+        self.player.lives = saved_lives
+        self.current_level = level
+
+        # Reset scrolling
+        self.bg_scroll = 0
+        self.screen_scroll = 0
         self.current_level = level
 
     def process_data(self, data: List[List[int]]):
@@ -137,11 +150,11 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
                 self.load_level(self.current_level+1)
         else:
             self.screen_scroll = 0
-            if self.player.lives > 0:
+            if self.player.lives > 0:    # Check to reduce player's lives 
                 self.player.lives -= 1
-                #self.player.respawn()
-                self.load_level(self.current_level)    
-            else:
+                self.player.respawn()
+                self.load_level(self.current_level)
+            if self.player.lives == 0:
                 self.onPlayerDie()
 
         # check for uplevel

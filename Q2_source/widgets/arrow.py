@@ -5,6 +5,7 @@ from settings import SCREEN_WIDTH
 
 arrow_img = pygame.image.load('img/icons/arrow.png').convert_alpha()
 
+# Projectile
 class Arrow(pygame.sprite.Sprite):
     def __init__(self, x, y, direction):
         super().__init__()
@@ -34,11 +35,11 @@ class Arrow(pygame.sprite.Sprite):
             # check collision with player
             player = screen.get_player()
             if player.alive and pygame.sprite.collide_rect(player, self):
-                player.health -= 5
+                player.health -= 5     # damage
                 self.kill()
             
             # check collision with enemies
             for enemy in screen.get_enemy_group():
                 if enemy.alive and pygame.sprite.collide_rect(enemy, self):
-                    enemy.health -= 25
+                    enemy.health -= 25     # damage
                     self.kill()

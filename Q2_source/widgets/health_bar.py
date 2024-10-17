@@ -3,6 +3,8 @@ from typing import override
 from contracts.screen_interfaces import IPlayScreen
 from settings import BLACK, GREEN, MAX_HEALTH, RED, SCREEN_HEIGHT, SCREEN_WIDTH
 
+
+# Create Health bar
 class HealthBar(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()

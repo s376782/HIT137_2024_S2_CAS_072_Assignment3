@@ -3,6 +3,8 @@ from typing import override
 from widgets.tile import Tile
 from contracts.screen_interfaces import IPlayScreen
 
+
+# Collectible items
 class ItemBoxTile(Tile):
     ItemType_Health = 'Health'
     ItemType_Arrow = 'Arrow'
@@ -34,13 +36,13 @@ class ItemBoxTile(Tile):
             player = screen.get_player()
             if pygame.sprite.collide_rect(self, player):
                 # check what kind of box it was
-                if self.item_type == ItemBoxTile.ItemType_Health:
-                    player.health += 25
+                if self.item_type == ItemBoxTile.ItemType_Health:   # Add 25 health
+                    player.health += 25                      
                     if player.health > player.max_health:
                         player.health = player.max_health
-                elif self.item_type == ItemBoxTile.ItemType_Arrow:
+                elif self.item_type == ItemBoxTile.ItemType_Arrow:    # Add 15 arrows
                     player.arrow += 15
-                elif self.item_type == ItemBoxTile.ItemType_Bomb:
+                elif self.item_type == ItemBoxTile.ItemType_Bomb:    # Add 3 bombs
                     player.bombs += 3
 
                 #delete the item box

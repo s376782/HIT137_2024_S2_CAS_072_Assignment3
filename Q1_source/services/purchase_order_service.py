@@ -2,6 +2,11 @@ from models.po import PO
 from services.base_service import BaseService
 
 class PurchaseOrderService(BaseService[PO]):
+    """
+    PurchaseOrderService class manages operations related to purchase orders.
+    It extends the BaseService class and interacts with purchase order data stored in an Excel file.
+    """
+
     __Source = 'data/PurchaseOrder.xlsx'
     '''(private) Path to the Excel file for purchase orders.'''
 

@@ -12,22 +12,30 @@ from services.sale_order_service import SaleOrderService
 from tkinter import Tk
 
 class MainWindow(Tk):
-    '''
-    Class Application has a multiple inheritance (inherit Tk and ILoginCallback)
-    '''
+    """
+    MainWindow class extends Tkinter's Tk and serves as the main application window, 
+    managing multiple pages such as Dashboard, Sale Order, Purchase Order, Product List, and Customer pages.
+
+    It utilizes a dictionary to store instances of pages and switches between them based on user interaction.
+    """
+
     def __init__(self,
                  customer_service: CustomerService,
                  product_service: ProductService,
                  purchase_order_service: PurchaseOrderService,
                  sale_order_service: SaleOrderService):
+        """
+        Initializes the MainWindow with different services and sets up the application layout.
+
+        Args:
+            customer_service (CustomerService): The service to manage customer data.
+            product_service (ProductService): The service to manage product data.
+            purchase_order_service (PurchaseOrderService): The service to manage purchase order data.
+            sale_order_service (SaleOrderService): The service to manage sale order data.
+        """
         super().__init__()
 
-        # main_frame = Frame(self, bg="#FFF0F5", height=800, width=1900)
-        # main_frame.pack_propagate(0)
-        # main_frame.pack(fill="both", expand="true")
-        # main_frame.grid_rowconfigure(0, weight=1)
-        # main_frame.grid_columnconfigure(0, weight=1)
-
+        # Dictionary to hold page frames
         self.__frames = {
             SaleOrderPage.__name__: SaleOrderPage(self, self, sale_order_service),
             PurchaseOrderPage.__name__: PurchaseOrderPage(self, self, purchase_order_service),
@@ -35,18 +43,25 @@ class MainWindow(Tk):
             CustomerPage.__name__: CustomerPage(self, self, customer_service),
             DashboardPage.__name__: DashboardPage(self, self, sale_order_service, purchase_order_service, product_service),
         }
-        '''__frame variable is private encapsulation'''
+        '''(private) Holds all the page frames.'''
 
+        # Configure and display each frame in the grid layout
         for frame in self.__frames.values():
             frame.grid(row=0, column=0, sticky="nsew")
 
+        # Create and configure the MenuBar
         menubar = MenuBar(self)
         self.config(menu=menubar)
 
     def show_page(self, name):
-        '''
-        (public method encapsulation)
-        Show page base on name
-        '''
-        frame = self.__frames[name]
-        frame.tkraise()
+        """
+        (public) Method to show a specific page based on its name.
+        
+        Args:
+            name (str): The name of the page to display.
+        """
+        frame = self.__frames.get(name)
+        if frame:
+            frame.tkraise()
+        else:
+            raise ValueError(f"Page '{name}' not found.")

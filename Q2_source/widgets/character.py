@@ -161,7 +161,8 @@ class Character(Tile):
     def shoot(self, screen: IPlayScreen):
         if self.shoot_cooldown == 0 and self.arrow > 0:
             self.shoot_cooldown = 20
-            bullet = Arrow(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), self.rect.centery, self.direction)
+            bullet = Arrow(self.rect.centerx + (0.75 * self.rect.size[0] * self.direction), 
+                           self.rect.centery, self.direction)
             screen.get_arrow_group().add(bullet)
             #reduce arrow
             self.arrow -= 1
@@ -257,14 +258,14 @@ class Enemy(Character):
 
 class Player(Character, IPlayer):
     def __init__(self, tile, x, y):
-        Character.__init__(self, tile, 'player', x, y, 1.5, 7, 20, 5)
+        Character.__init__(self, tile, 'player', x, y, 1.5, 7, 20, 5)   # scale: 1.5 Speed: 7, arrow: 20, bombs:5
         self.lives = 3    # The player has 3 lives
     
     def respawn(self):
         self.alive = True
         self.health = self.max_health  # Reset health to max health
 
-# Create boss enemy with health = 200
+# Create boss enemy with health = 300
 class Boss(Enemy):
     def __init__(self, tile, x, y, scale=1, speed=1, arrow=30, bombs=0):
         super().__init__(tile, x, y, scale, speed, arrow, bombs)

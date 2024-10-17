@@ -21,10 +21,10 @@ class Arrow(pygame.sprite.Sprite):
 
         screen = args[0]
         if screen and isinstance(screen, IPlayScreen):
-            # move bullet
+            # move arrow
             self.rect.x += (self.direction*self.speed) + screen.get_screen_scroll()
 
-            # check if bullet has gone off screen
+            # check if arrow has gone off screen
             if self.rect.right < 0 or self.rect.left > SCREEN_WIDTH:
                 self.kill()
         

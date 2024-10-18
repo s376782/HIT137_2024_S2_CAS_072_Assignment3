@@ -4,7 +4,7 @@ conda create -n hit137 python
 conda activate hit137
 ```
 
-Q1
+Question 1:
 
 install missing library
 
@@ -21,7 +21,7 @@ python Q1_source/main.py
 ```
 
 
-Q2
+Question 2:
 
 install pygame library
 

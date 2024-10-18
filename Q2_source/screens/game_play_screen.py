@@ -192,7 +192,7 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
             screen.blit(img, (x, y))
 
         #show arrow
-        draw_text(f'Arrow: {self.player.arrow}', font, WHITE, 10, 35)
+        draw_text(f'Arrows: {self.player.arrow}', font, WHITE, 10, 35)
         #show bombs
         draw_text(f'Bombs: {self.player.bombs}', font, WHITE, 10, 55)
         #show lives

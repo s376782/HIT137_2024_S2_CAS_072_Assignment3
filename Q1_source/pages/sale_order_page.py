@@ -165,7 +165,7 @@ class SaleOrderPage(BasePage):
                 return
 
             # Add the new sale order and refresh the Treeview
-            self.__sale_order_service.add(new_SO)
+            self.__sale_order_service.add(so)
             self.__refresh_data()
 
             # Close the popup window after saving the sale order

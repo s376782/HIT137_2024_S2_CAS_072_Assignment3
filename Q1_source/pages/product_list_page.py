@@ -151,7 +151,7 @@ class ProductListPage(BasePage):
                 return
 
             # Add the new product and refresh the Treeview data
-            self.__product_service.add(new_product)
+            self.__product_service.add(product)
             self.__refresh_data()
 
             # Close the popup window after saving the product

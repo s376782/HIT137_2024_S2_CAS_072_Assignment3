@@ -142,7 +142,7 @@ class CustomerPage(BasePage):
                 return
 
             # Add new customer to the service and refresh the data
-            self.__customer_service.add(new_customer)
+            self.__customer_service.add(new_person)
             self.__refresh_data()
 
             # Close the self.__popup window after saving the product

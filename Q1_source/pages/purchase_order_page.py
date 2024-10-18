@@ -166,7 +166,7 @@ class PurchaseOrderPage(BasePage):
                 return
 
             # Add the new purchase order to the service and refresh the Treeview
-            self.__purchase_order_service.add(new_PO)
+            self.__purchase_order_service.add(po)
             self.__refresh_data()
 
             # Close the popup window after successfully saving the purchase order

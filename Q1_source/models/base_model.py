@@ -15,6 +15,9 @@ class BaseModel(ABC):
         
         This method is expected to return the model's data as a list.
         
+        This is where polymorphism comes into play - each subclass of BaseModel provides
+        its own implementation of get_data(), returning a list of data relevant to that specific model
+
         Returns:
             list: The data of the model in list form.
         

@@ -21,7 +21,7 @@ class DashboardPage(BasePage):
                           rotation=45):
         
         """(private) Creates a bar chart and returns the figure."""
-        fig, ax = plt.subplots(figsize= (int(screen_width/200), int(screen_height/200)))
+        fig, ax = plt.subplots(figsize= (int(screen_width/210), int(screen_height/220)))
         ax.bar(x, y, color=colors, width=0.4)
         ax.set_xlabel(labelx)
         ax.set_ylabel(labely)
@@ -38,7 +38,7 @@ class DashboardPage(BasePage):
                           screen_width, screen_height,
                           title="Distribution of Types"):
         """(private) Creates a pie chart and returns the figure."""
-        fig, ax = plt.subplots(figsize=(int(screen_height/200), int(screen_width/200)))
+        fig, ax = plt.subplots(figsize=(int(screen_height/210), int(screen_width/220)))
         ax.pie(values, labels=labels, autopct='%1.1f%%')
         ax.set_title(title, fontweight = "bold", fontsize = "16")
         plt.tight_layout()
@@ -112,7 +112,7 @@ class DashboardPage(BasePage):
     def __add_chart(self, parent, row, column, figure):
         """(private) Helper method to add a chart to the specified frame."""
         frame = tk.Frame(parent)
-        frame.grid(row=row, column=column, padx=10, pady=10)
+        frame.grid(row=row, column=column, padx=10, pady=5)
         canvas = FigureCanvasTkAgg(figure, master=frame)
         canvas.draw()
         canvas.get_tk_widget().pack()

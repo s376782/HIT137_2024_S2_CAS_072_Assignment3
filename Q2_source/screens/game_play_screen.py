@@ -12,6 +12,7 @@ from widgets.health_bar import HealthBar
 from settings import MAX_LEVELS, SCREEN_HEIGHT, TILE_SIZE, WHITE
 from widgets.character import Player
 
+# Load background layers for parallax scrolling
 Layer_0000_9_img = pygame.image.load('img/Background/Layer_0000_9.png').convert_alpha()
 Layer_0001_8_img = pygame.image.load('img/Background/Layer_0001_8.png').convert_alpha()
 Layer_0002_7_img = pygame.image.load('img/Background/Layer_0002_7.png').convert_alpha()
@@ -26,24 +27,43 @@ Layer_0010_1_img = pygame.image.load('img/Background/Layer_0010_1.png').convert_
 Layer_0011_0_img = pygame.image.load('img/Background/Layer_0011_0.png').convert_alpha()
 
 class GamePlayScreen(BaseScreen, IPlayScreen):
+    """
+    GamePlayScreen manages the active game level, player, and interactions
+    """
+
     def __init__(self, onPlayerDie, onGameCompleted):
+        """
+        Initialize the GamePlayScreen.
+        :param onPlayerDie: Callback function to be called when the player dies.
+        :param onGameCompleted: Callback function to be called when the game is completed.
+        """
         super().__init__()
+
+        # Add a health bar for the player
         self.sprites.add(
             HealthBar(10, 10)
         )
+
+        # Initialize callbacks
         self.onPlayerDie = onPlayerDie
         self.onGameCompleted = onGameCompleted
+
+        # Initialize sprite groups for bombs, explosions, and arrows
         self.bomb_group = pygame.sprite.Group()
         self.explosion_group = pygame.sprite.Group()
         self.arrow_group = pygame.sprite.Group()
+
+        # Initialize background and screen scroll variables
         self.bg_scroll = 0
         self.screen_scroll = 0
 
+        # Player controls
         self.shoot = False
         self.bomb = False 
         self.bomb_thrown = False
         self.moving_left = self.moving_right = False
 
+    # Overridden methods from IPlayScreen interface
     @override
     def get_screen_scroll(self) -> int:
         return self.screen_scroll
@@ -82,68 +102,80 @@ class GamePlayScreen(BaseScreen, IPlayScreen):
 
     # 3 levels
     def load_level(self, level: int):
-        # Save the current player's lives (if player already exists)
-        if hasattr(self, 'player'):
-            saved_lives = self.player.lives
-        else:
-            saved_lives = 3 
+        """
+        Load the level data from a CSV file and initialize the tiles and player.
+        :param level: The level number to load.
+        """
+        # Save the current player's lives (if already exists)
+        saved_lives = self.player.lives if hasattr(self, 'player') else 3
+
+        # Load level data from CSV file
         world_data = []
-        with open(f'level{level}_data.csv', newline='') as csvfile:      # 3 levels
+        with open(f'level{level}_data.csv', newline='') as csvfile:
             reader = csv.reader(csvfile)
-            for x, row in enumerate(reader):
-                rowData = []
-                for y, tile in enumerate(row):
-                    rowData.append(int(tile))
-                world_data.append(rowData)  
+            for row in reader:
+                world_data.append([int(tile) for tile in row])  # Convert tile values to integers
+
+        # Process the level data and set up tiles and player
         self.process_data(world_data)
-        # Restore player's lives and level
+
+        # Restore player's lives and reset scroll values
         self.player.lives = saved_lives
         self.current_level = level
-
-        # Reset scrolling
         self.bg_scroll = 0
         self.screen_scroll = 0
-        self.current_level = level
 
     def process_data(self, data: List[List[int]]):
+        """
+        Process the level data and create tiles and player.
+        :param data: A 2D list of tile IDs representing the level layout.
+        """
         self.level_length = len(data[0])
         self.tile_manager = TileManager()
-        #iterate through each value in level data file
+
+        # Iterate through the level data and create tiles
         for y, row in enumerate(data):
             for x, tile in enumerate(row):
-                self.tile_manager.create_tile(tile, x*TILE_SIZE, y*TILE_SIZE)
+                self.tile_manager.create_tile(tile, x * TILE_SIZE, y * TILE_SIZE)
 
+        # Set player and health bar
         self.player = self.tile_manager.player        
         self.health_bar = HealthBar(10, 10)
 
     @override
     def update(self):
-        super().update()
+        """
+        Update the game state and handle player movement, shooting, bombs, and level progression.
+        """
+        super().update()  # Update sprites and background
 
+        # Update game objects and handle their interactions
         self.tile_manager.tile_group.update(self)
         self.bomb_group.update(self)
         self.explosion_group.update(self)
         self.arrow_group.update(self)
 
         if self.player.alive:
-            #shoot bullets
+            # Handle player actions: shooting, throwing bombs, and movement
             if self.shoot:
                 self.player.shoot(self)
-            #throw grenades
             elif self.bomb and self.bomb_thrown == False and self.player.bombs > 0:
                 bomb = Bomb(self.player.rect.centerx + (0.5 * self.player.rect.size[0] * self.player.direction),
                                   self.player.rect.top,
                                   self.player.direction)
                 self.bomb_group.add(bomb)
-                #reduce grenades
-                self.player.bombs -= 1
+                self.player.bombs -= 1  # Decrease bomb count
                 self.bomb_thrown = True
+
+            # Update player action (idle, run, jump)
             if self.player.in_air:
-                self.player.update_action(2)#2: jump
+                self.player.update_action(2)  # Jump action
             elif self.moving_left or self.moving_right:
-                self.player.update_action(1) #1: run
+                self.player.update_action(1)  # Run action
             else:
-                self.player.update_action(0) #0: idle
+                self.player.update_action(0)  # Idle action
+
+            # Handle screen scrolling based on player movement
             self.screen_scroll, self.level_complete = self.player.movement(self, self.moving_left, self.moving_right)
             self.bg_scroll -= self.screen_scroll
             #check if player has completed the level

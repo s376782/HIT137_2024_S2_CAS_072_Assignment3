@@ -7,34 +7,51 @@ from contracts.screen_interfaces import IPlayScreen, IPlayer
 from widgets.tile import Tile
 from widgets.decoration_tile import DecorationTile
 from widgets.arrow import Arrow
-from settings import GRAVITY, MAX_HEALTH, RED, SCREEN_HEIGHT, SCREEN_WIDTH, SCROLL_THRESH, TILE_SIZE
+from settings import GRAVITY, SCREEN_HEIGHT, SCREEN_WIDTH, SCROLL_THRESH, TILE_SIZE
 
 jump_fx = pygame.mixer.Sound('audio/jump.wav')
 jump_fx.set_volume(0.05)
 shot_fx = pygame.mixer.Sound('audio/shot.wav')
 shot_fx.set_volume(0.05)
 
+# Character class: Base class for Player, Enemy, and Boss
 class Character(Tile):
+    """
+    Character class is a base class for all characters, including players, enemies, and bosses.
+    It handles common functionality such as movement, jumping, shooting, animations, and health.
+    """
+
     def __init__(self, tile, char_type, x, y, scale, speed, arrow, bombs):
+        """
+        Initialize the Character object.
+        :param tile: The tile index for the character.
+        :param char_type: Type of the character ('player', 'enemy', etc.).
+        :param x: Initial x-coordinate of the character.
+        :param y: Initial y-coordinate of the character.
+        :param scale: Scale factor for the character sprite.
+        :param speed: Movement speed of the character.
+        :param arrow: Initial amount of arrows the character has.
+        :param bombs: Initial amount of bombs the character has.
+        """
         super().__init__(tile, x, y)
         self.alive = True
         self.char_type = char_type
-        self.speed = speed     # Speed
-        self.arrow = arrow
+        self.speed = speed  # Movement speed of the character
+        self.arrow = arrow  # Number of arrows available
         self.start_arrow = arrow
-        self.shoot_cooldown = 0
+        self.shoot_cooldown = 0  # Cooldown timer for shooting
         self.bombs = bombs
-        self.health = 100     # Health set to 100 (for player and small enemy)
+        self.health = 100  # Initial health of the character
         self.max_health = self.health
-        self.direction = 1
-        self.vel_y = 0
+        self.direction = 1  # 1 for right, -1 for left
+        self.vel_y = 0  # Vertical velocity (used for jumping/falling)
         self.jump = False
-        self.in_air = True
-        self.flip = False
-        self.action = 0
+        self.in_air = True  # Track if the character is in the air
+        self.flip = False  # Flip the image when moving left
+        self.action = 0  # Current action (animation state)
         self.update_time = pygame.time.get_ticks()
 
-        #load all images for the players
+        # Load all animation frames for the character
         self.animation_list = []
         self.frame_index = 0
         animation_types = ['Idle', 'Run', 'Jump', 'Death']
@@ -57,25 +74,37 @@ class Character(Tile):
 
     @override
     def update(self, *args, **kwargs):
+        """
+        Update method called every frame.
+        Manages animations, alive status, and cooldowns.
+        """
         if self.char_type == 'enemy':
             pass
-        super().update(*args, **kwargs)
 
+        if self.char_type != 'player':
+            super().update(*args, **kwargs)
+
+        # Update character animations and check if alive
         self.update_animation()
         self.check_alive()
 
-        #update cooldown
+        # Update shoot cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
     
-    # Movement 
     def movement(self, screen: IPlayScreen, moving_left: bool, moving_right: bool):
-        #reset movement variables
+        """
+        Handle the character's movement including jumping, falling, and collisions.
+        :param screen: The game screen interface.
+        :param moving_left: Whether the character is moving left.
+        :param moving_right: Whether the character is moving right.
+        :return: A tuple with the screen scroll value and whether the level is completed.
+        """
         screen_scroll = 0
         dx = 0
         dy = 0
 
-        #assign movement variables if moving left or right
+        # Move left or right
         if moving_left:
             dx = -self.speed
             self.flip = True
@@ -85,60 +114,54 @@ class Character(Tile):
             self.flip = False
             self.direction = 1
 
-        #jump
+        # Jumping logic
         if self.char_type == 'player' and self.jump == True and self.in_air == False:
-            self.vel_y = -11
+            self.vel_y = -11  # Jump strength
             dx += self.direction * 2 * TILE_SIZE
             self.jump = False
             self.in_air = True
 
-        #apply gravity
+        # Apply gravity
         self.vel_y += GRAVITY
         if self.vel_y > 10:
-            self.vel_y
+            self.vel_y = 10  # Limit fall speed
         dy += self.vel_y
 
-        #check for collision
+        # Collision detection with obstacles
         for tile in screen.get_obstacle_group():
-            # check if this tile is the current enemy itself and skip collision check
-            # if tile == self or isinstance(tile, DecorationTile):
-            #     continue
-            #check collision in the x direction
+            # Check for collisions in the x-direction (horizontal movement)
             if tile.rect.colliderect(self.rect.x + dx, self.rect.y, self.width, self.height):
-                dx = 0
-                #if the ai has hit a wall then make it turn around
+                dx = 0  # Stop horizontal movement on collision
+                # Reverse direction for AI enemies upon hitting a wall
                 if self.char_type == 'enemy':
-                    # only reverse direction after moving a certain distance or time
                     if self.move_counter > TILE_SIZE:
                         self.direction *= -1
-                        self.move_counter = 0      # reset move counter after reversing
-            #check for collision in the y direction
+                        self.move_counter = 0
+
+            # Check for collisions in the y-direction (vertical movement)
             if tile.rect.colliderect(self.rect.x, self.rect.y + dy, self.width, self.height):
-                #check if below the ground, i.e. jumping
-                if self.vel_y < 0:
+                if self.vel_y < 0:  # Jumping collision
                     self.vel_y = 0
                     dy = tile.rect.bottom - self.rect.top
-                #check if above the ground, i.e. falling
-                elif self.vel_y >= 0:
+                elif self.vel_y >= 0:  # Falling collision
                     self.vel_y = 0
                     self.in_air = False
                     dy = tile.rect.top - self.rect.bottom
 
-        #check for collision with water
+        # Check for collision with water or exit
         if pygame.sprite.spritecollide(self, screen.get_water_group(), False):
-            self.health = 0
+            self.health = 0  # Character dies if falling into water
 
-        #check for collision with exit
+        # Check for collision with exit
         level_complete = False
         if pygame.sprite.spritecollide(self, screen.get_exit_group(), False):
-            level_complete = True
+            level_complete = True  # Character reaches the exit
 
-        #check if fallen off the map
+        # Check if character fell off the map
         if self.rect.bottom > SCREEN_HEIGHT:
             self.health = 0
 
-
-        #check if going off the edges of the screen
+        # Check for screen scrolling when moving
         if self.char_type == 'player':
             if self.rect.left + dx < 0 or self.rect.right + dx > SCREEN_WIDTH:
                 dx = 0
